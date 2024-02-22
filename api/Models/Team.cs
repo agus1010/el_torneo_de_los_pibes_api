@@ -3,16 +3,13 @@
 
 namespace api.Models
 {
-	public class Player
+	public class Team
 	{
 		[Key]
 		public int Id { get; set; }
 
-		[Required]
 		public string Name { get; set; }
 
-		public string ImageUrl { get; set; }
-
-		public ICollection<Team> Teams { get; set; } = [];
+		public ICollection<Player> Players { get; set; }
 	}
 }
