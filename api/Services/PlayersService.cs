@@ -1,54 +1,72 @@
-﻿using api.General;
-using api.Models.Dtos;
+﻿using AutoMapper;
+
+using api.General;
+using api.Models.Dtos.Player;
+using api.Models.Entities;
 using api.Repositories;
 
 
 namespace api.Services
 {
-	public class PlayersService : IAsyncCRUD<PlayerDto>
+    public class PlayersService : IAsyncCRUD<PlayerDto>
 	{
 		protected readonly PlayersRepository _repo;
+		protected readonly IMapper _mapper;
 
 
-
-		public PlayersService(PlayersRepository playersRepository)
+		public PlayersService(PlayersRepository playersRepository, IMapper mapper)
 		{
 			_repo = playersRepository;
+			_mapper = mapper;
 		}
 
 
-
-		public Task<PlayerDto> Create(PlayerDto entity)
+		public async Task<PlayerDto> Create(PlayerDto playerDto)
 		{
-			throw new NotImplementedException();
+			var newPlayer = await _repo.Create(_mapper.Map<Player>(playerDto));
+			return _mapper.Map<PlayerDto>(newPlayer);
+		}
+
+		public async Task<PlayerDto> Create(PlayerCreationDto playerCreationDto)
+		{
+			return await Create(_mapper.Map<PlayerDto>(playerCreationDto));
 		}
 
 
-		public Task Delete(int id)
+		public async Task Delete(int id)
 		{
-			throw new NotImplementedException();
+			await Delete(await Get(id));
 		}
-		public Task Delete(PlayerDto entity)
+
+		public async Task Delete(PlayerDto? playerDto)
 		{
-			throw new NotImplementedException();
+			if (playerDto == null)
+				throw new Exception();
+			var player = _mapper.Map<Player>(playerDto!);
+			await _repo.Delete(player);
+		}
+
+
+		public async Task<IEnumerable<PlayerDto>> Get()
+		{
+			return (await _repo.Get()).Select(p => _mapper.Map<PlayerDto>(p));
+		}
+
+
+		public async Task<PlayerDto?> Get(int id)
+		{
+			var player = await _repo.Get(id);
+			if (player == null)
+				return null;
+			return _mapper.Map<PlayerDto>(player);
 		}
 
 		
-		public Task<IEnumerable<PlayerDto>> Get()
+		public async Task Update(int id, PlayerDto playerDto)
 		{
-			throw new NotImplementedException();
-		}
-
-
-		public Task<PlayerDto?> Get(int id)
-		{
-			throw new NotImplementedException();
-		}
-
-		
-		public Task Update(int id, PlayerDto entity)
-		{
-			throw new NotImplementedException();
+			if (id != playerDto.Id)
+				throw new Exception();
+			await _repo.Update(id, _mapper.Map<Player>(playerDto));
 		}
 	}
 }
