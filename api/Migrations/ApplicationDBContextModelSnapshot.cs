@@ -22,22 +22,7 @@ namespace api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("PlayerTeam", b =>
-                {
-                    b.Property<int>("PlayersId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TeamsId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("PlayersId", "TeamsId");
-
-                    b.HasIndex("TeamsId");
-
-                    b.ToTable("PlayerTeam");
-                });
-
-            modelBuilder.Entity("api.Models.Bet", b =>
+            modelBuilder.Entity("api.Models.Entities.Bet", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -68,7 +53,7 @@ namespace api.Migrations
                     b.ToTable("Bets");
                 });
 
-            modelBuilder.Entity("api.Models.Match", b =>
+            modelBuilder.Entity("api.Models.Entities.Match", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -108,7 +93,7 @@ namespace api.Migrations
                     b.ToTable("Matches");
                 });
 
-            modelBuilder.Entity("api.Models.Player", b =>
+            modelBuilder.Entity("api.Models.Entities.Player", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -129,7 +114,30 @@ namespace api.Migrations
                     b.ToTable("Players");
                 });
 
-            modelBuilder.Entity("api.Models.Team", b =>
+            modelBuilder.Entity("api.Models.Entities.PlayersInTeam", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TeamId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("TeamId");
+
+                    b.ToTable("PlayersInTeam");
+                });
+
+            modelBuilder.Entity("api.Models.Entities.Team", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -146,7 +154,7 @@ namespace api.Migrations
                     b.ToTable("Teams");
                 });
 
-            modelBuilder.Entity("api.Models.Tournament", b =>
+            modelBuilder.Entity("api.Models.Entities.Tournament", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -176,7 +184,7 @@ namespace api.Migrations
                     b.ToTable("Tournaments");
                 });
 
-            modelBuilder.Entity("api.Models.TournamentsPlayersScores", b =>
+            modelBuilder.Entity("api.Models.Entities.TournamentsPlayersScores", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -205,36 +213,21 @@ namespace api.Migrations
                     b.ToTable("TournamentsPlayersScores");
                 });
 
-            modelBuilder.Entity("PlayerTeam", b =>
+            modelBuilder.Entity("api.Models.Entities.Bet", b =>
                 {
-                    b.HasOne("api.Models.Player", null)
-                        .WithMany()
-                        .HasForeignKey("PlayersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("api.Models.Team", null)
-                        .WithMany()
-                        .HasForeignKey("TeamsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("api.Models.Bet", b =>
-                {
-                    b.HasOne("api.Models.Player", "Creator")
+                    b.HasOne("api.Models.Entities.Player", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Match", "Match")
+                    b.HasOne("api.Models.Entities.Match", "Match")
                         .WithMany()
                         .HasForeignKey("MatchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Team", "WiningTeam")
+                    b.HasOne("api.Models.Entities.Team", "WiningTeam")
                         .WithMany()
                         .HasForeignKey("WiningTeamId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -247,21 +240,21 @@ namespace api.Migrations
                     b.Navigation("WiningTeam");
                 });
 
-            modelBuilder.Entity("api.Models.Match", b =>
+            modelBuilder.Entity("api.Models.Entities.Match", b =>
                 {
-                    b.HasOne("api.Models.Team", "Team1")
+                    b.HasOne("api.Models.Entities.Team", "Team1")
                         .WithMany()
                         .HasForeignKey("Team1Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Team", "Team2")
+                    b.HasOne("api.Models.Entities.Team", "Team2")
                         .WithMany()
                         .HasForeignKey("Team2Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Tournament", "Tournament")
+                    b.HasOne("api.Models.Entities.Tournament", "Tournament")
                         .WithMany("Matches")
                         .HasForeignKey("TournamentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -274,22 +267,42 @@ namespace api.Migrations
                     b.Navigation("Tournament");
                 });
 
-            modelBuilder.Entity("api.Models.TournamentsPlayersScores", b =>
+            modelBuilder.Entity("api.Models.Entities.PlayersInTeam", b =>
                 {
-                    b.HasOne("api.Models.Player", "Player")
+                    b.HasOne("api.Models.Entities.Player", "Player")
                         .WithMany()
                         .HasForeignKey("PlayerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.Tournament", null)
+                    b.HasOne("api.Models.Entities.Team", null)
+                        .WithMany("PlayersInTeam")
+                        .HasForeignKey("TeamId");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("api.Models.Entities.TournamentsPlayersScores", b =>
+                {
+                    b.HasOne("api.Models.Entities.Player", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Models.Entities.Tournament", null)
                         .WithMany("PlayersScores")
                         .HasForeignKey("TournamentId");
 
                     b.Navigation("Player");
                 });
 
-            modelBuilder.Entity("api.Models.Tournament", b =>
+            modelBuilder.Entity("api.Models.Entities.Team", b =>
+                {
+                    b.Navigation("PlayersInTeam");
+                });
+
+            modelBuilder.Entity("api.Models.Entities.Tournament", b =>
                 {
                     b.Navigation("Matches");
 

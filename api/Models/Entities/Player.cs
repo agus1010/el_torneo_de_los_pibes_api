@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 
-namespace api.Models
+namespace api.Models.Entities
 {
 	public class Player
 	{
@@ -12,7 +12,5 @@ namespace api.Models
 		public string Name { get; set; }
 
 		public string ImageUrl { get; set; }
-
-		public ICollection<Team> Teams { get; set; } = [];
 	}
 }

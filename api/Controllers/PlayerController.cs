@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 using api.Data;
-using api.Models;
+using api.Models.Entities;
 
 
 namespace api.Controllers
 {
-    [Route("api/[controller]")]
+	[Route("api/[controller]")]
     [ApiController]
     public class PlayerController : ControllerBase
     {

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace api.Models
+
+namespace api.Models.Entities
 {
 	public class Match
 	{
