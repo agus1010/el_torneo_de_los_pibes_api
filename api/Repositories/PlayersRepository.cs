@@ -21,7 +21,7 @@ namespace api.Repositories
 		public async Task<Player> Create(Player player)
 		{
 			_context.Players.Add(player);
-			await _context.SaveChangesAsync();
+			await Persist();
 			return player;
 		}
 
@@ -29,7 +29,7 @@ namespace api.Repositories
 		public async Task Delete(Player player)
 		{
 			_context.Players.Remove(player);
-			await _context.SaveChangesAsync();
+			await Persist();
 		}
 
 
@@ -40,22 +40,28 @@ namespace api.Repositories
 		
 		public async Task<Player?> Get(int id)
 		{
-			return await _context.Players.FindAsync(id);
+			return await _context.Players.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
 		}
 
 
-		public async Task Update(int id, Player player)
+		public async Task Update(Player player)
 		{
 			_context.Entry(player).State = EntityState.Modified;
 
 			try
 			{
-				await _context.SaveChangesAsync();
+				await Persist();
 			}
 			catch (DbUpdateConcurrencyException)
 			{
 				throw;
 			}
+		}
+
+
+		public async Task Persist()
+		{
+			await _context.SaveChangesAsync();
 		}
 	}
 }

@@ -6,6 +6,6 @@
 		Task Delete(T entity);
 		Task<IEnumerable<T>> Get();
 		Task<T?> Get(int id);
-		Task Update(int id, T entity);
+		Task Update(T entity);
 	}
 }

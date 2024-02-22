@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-using api.Data;
-using api.Models.Entities;
+using api.Models.Dtos.Player;
+using api.Services;
 
 
 namespace api.Controllers
@@ -11,89 +10,77 @@ namespace api.Controllers
     [ApiController]
     public class PlayerController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
+        private readonly PlayersService _service;
 
-        public PlayerController(ApplicationDBContext context)
+        public PlayerController(PlayersService playerService)
         {
-            _context = context;
+            _service = playerService;
         }
 
-        // GET: api/Player
+        
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Player>>> GetPlayers()
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		public async Task<ActionResult<IEnumerable<PlayerDto>>> Get()
         {
-            return await _context.Players.ToListAsync();
+            return Ok(await _service.Get());
         }
 
-        // GET: api/Player/5
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<Player>> GetPlayer(int id)
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<PlayerDto>> Get(int id)
         {
-            var player = await _context.Players.FindAsync(id);
+            var playerDto = await _service.Get(id);
 
-            if (player == null)
-            {
+            if (id <= 0)
+                return BadRequest();
+
+            if (playerDto == null)
                 return NotFound();
-            }
 
-            return player;
+            return Ok(playerDto);
         }
 
-        // PUT: api/Player/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPlayer(int id, Player player)
+
+		[HttpPost]
+		[ProducesResponseType(StatusCodes.Status201Created)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<ActionResult<PlayerDto>> Create(PlayerCreationDto playerCreationDto)
+		{
+			if (playerCreationDto == null)
+				return BadRequest();
+
+			var newPlayerDto = await _service.Create(playerCreationDto);
+
+			return CreatedAtAction("Get", new { id = newPlayerDto.Id }, newPlayerDto);
+		}
+
+
+		[HttpPut("{id}")]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> Update(int id, PlayerDto playerDto)
         {
-            if (id != player.Id)
-            {
+            if (playerDto == null || id != playerDto.Id)
                 return BadRequest();
-            }
 
-            _context.Entry(player).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            { 
-                if (!PlayerExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _service.Update(playerDto);
 
             return NoContent();
         }
 
-        // POST: api/Player
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Player>> PostPlayer(Player player)
-        {
-            _context.Players.Add(player);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPlayer", new { id = player.Id }, player);
-        }
-
-        // DELETE: api/Player/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePlayer(int id)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Delete(int id)
         {
-            var player = await _context.Players.FindAsync(id);
-            if (player == null)
-            {
-                return NotFound();
-            }
-
-            _context.Players.Remove(player);
-            await _context.SaveChangesAsync();
-
+            if (id <= 0)
+                return BadRequest();
+            
+            await _service.Delete(id);
             return NoContent();
         }
     }

@@ -62,11 +62,9 @@ namespace api.Services
 		}
 
 		
-		public async Task Update(int id, PlayerDto playerDto)
+		public async Task Update(PlayerDto playerDto)
 		{
-			if (id != playerDto.Id)
-				throw new Exception();
-			await _repo.Update(id, _mapper.Map<Player>(playerDto));
+			await _repo.Update(_mapper.Map<Player>(playerDto));
 		}
 	}
 }
