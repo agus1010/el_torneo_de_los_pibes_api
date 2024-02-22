@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 using api.Data;
@@ -100,11 +95,6 @@ namespace api.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool PlayerExists(int id)
-        {
-            return _context.Players.Any(e => e.Id == id);
         }
     }
 }
