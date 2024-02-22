@@ -3,7 +3,7 @@
 
 namespace api.Models
 {
-	public class TournamentStats
+	public class TournamentsPlayersScores
 	{
 		[Key] public int Id { get; set; }
 		public Player Player { get; set; }

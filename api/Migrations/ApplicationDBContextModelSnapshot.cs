@@ -154,6 +154,9 @@ namespace api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("FinishedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -168,17 +171,12 @@ namespace api.Migrations
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("StatsId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("StatsId");
 
                     b.ToTable("Tournaments");
                 });
 
-            modelBuilder.Entity("api.Models.TournamentStats", b =>
+            modelBuilder.Entity("api.Models.TournamentsPlayersScores", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -195,11 +193,16 @@ namespace api.Migrations
                     b.Property<int>("Points")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("TournamentId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("TournamentStats");
+                    b.HasIndex("TournamentId");
+
+                    b.ToTable("TournamentsPlayersScores");
                 });
 
             modelBuilder.Entity("PlayerTeam", b =>
@@ -271,18 +274,7 @@ namespace api.Migrations
                     b.Navigation("Tournament");
                 });
 
-            modelBuilder.Entity("api.Models.Tournament", b =>
-                {
-                    b.HasOne("api.Models.TournamentStats", "Stats")
-                        .WithMany()
-                        .HasForeignKey("StatsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Stats");
-                });
-
-            modelBuilder.Entity("api.Models.TournamentStats", b =>
+            modelBuilder.Entity("api.Models.TournamentsPlayersScores", b =>
                 {
                     b.HasOne("api.Models.Player", "Player")
                         .WithMany()
@@ -290,12 +282,18 @@ namespace api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("api.Models.Tournament", null)
+                        .WithMany("PlayersScores")
+                        .HasForeignKey("TournamentId");
+
                     b.Navigation("Player");
                 });
 
             modelBuilder.Entity("api.Models.Tournament", b =>
                 {
                     b.Navigation("Matches");
+
+                    b.Navigation("PlayersScores");
                 });
 #pragma warning restore 612, 618
         }

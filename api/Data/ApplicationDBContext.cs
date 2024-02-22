@@ -7,6 +7,13 @@ namespace api.Data
 {
 	public class ApplicationDBContext : DbContext
 	{
+		public DbSet<Player> Players { get; set; }
+		public DbSet<Team> Teams { get; set; }
+		public DbSet<Match> Matches { get; set; }
+		public DbSet<Tournament> Tournaments { get; set; }
+		public DbSet<Bet> Bets { get; set; }
+
+		
 		protected readonly IConfiguration Configuration;
 
 
@@ -21,11 +28,5 @@ namespace api.Data
 			optionsBuilder.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
 			base.OnConfiguring(optionsBuilder);
 		}
-
-		public DbSet<Player> Players { get; set; }
-		public DbSet<Team> Teams { get; set; }
-		public DbSet<Match> Matches { get; set; }
-		public DbSet<Tournament> Tournaments { get; set; }
-		public DbSet<Bet> Bets { get; set; }
 	}
 }
