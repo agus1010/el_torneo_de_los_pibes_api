@@ -8,11 +8,11 @@ namespace api.Controllers
 {
 	[Route("api/[controller]")]
     [ApiController]
-    public class PlayerController : ControllerBase
+    public class PlayersController : ControllerBase
     {
         private readonly IPlayersService _service;
 
-        public PlayerController(IPlayersService playerService)
+        public PlayersController(IPlayersService playerService)
         {
             _service = playerService;
         }
