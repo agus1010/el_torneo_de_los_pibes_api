@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using api.Models.Dtos.Player;
-using api.Services;
+using api.Services.Interfaces;
 
 
 namespace api.Controllers
@@ -10,9 +10,9 @@ namespace api.Controllers
     [ApiController]
     public class PlayerController : ControllerBase
     {
-        private readonly PlayersService _service;
+        private readonly IPlayersService _service;
 
-        public PlayerController(PlayersService playerService)
+        public PlayerController(IPlayersService playerService)
         {
             _service = playerService;
         }

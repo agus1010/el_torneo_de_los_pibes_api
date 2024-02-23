@@ -1,9 +1,10 @@
 using api.Data;
 using api.Models.Entities;
-using api.Models.Mappers;
+using api.Profiles;
 using api.Repositories;
 using api.Repositories.Interfaces;
 using api.Services;
+using api.Services.Interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,9 +18,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationDBContext>();
 
-builder.Services.AddAutoMapper(typeof(PlayerMapper));
+builder.Services.AddAutoMapper(typeof(PlayerMappingProfile));
 builder.Services.AddScoped<IBaseCRUDRepository<Player>, BaseCRUDRepository<Player>>();
-builder.Services.AddScoped<PlayersService, PlayersService>();
+builder.Services.AddScoped<IPlayersService, PlayersService>();
 
 var app = builder.Build();
 
