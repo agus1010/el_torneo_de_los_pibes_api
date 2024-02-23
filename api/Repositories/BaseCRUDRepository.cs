@@ -19,26 +19,26 @@ namespace api.Repositories
 		}
 
 
-		public async Task<T> Create(T entity)
+		public virtual async Task<T> Create(T entity)
 		{
 			await dbSet.AddAsync(entity);
 			await Persist();
 			return entity;
 		}
 
-		public async Task<T?> ReadSingle(Expression<Func<T, bool>>? filter = null, bool tracked = true)
+		public virtual async Task<T?> ReadSingle(Expression<Func<T, bool>>? filter = null, bool tracked = true)
 		{
 			var query = configQuery(dbSet, filter, tracked);
 			return await query.FirstOrDefaultAsync();
 		}
 
-		public async Task<IEnumerable<T>> ReadMany(Expression<Func<T, bool>>? filter = null, bool tracked = true)
+		public virtual async Task<IEnumerable<T>> ReadMany(Expression<Func<T, bool>>? filter = null, bool tracked = true)
 		{
 			var query = configQuery(dbSet, filter, tracked);
 			return await query.ToListAsync();
 		}
 
-		public async Task Update(T entity)
+		public virtual async Task Update(T entity)
 		{
 			_db.Entry(entity).State = EntityState.Modified;
 			try
@@ -51,16 +51,17 @@ namespace api.Repositories
 			}
 		}
 
-		public async Task Delete(T entity)
+		public virtual async Task Delete(T entity)
 		{
 			dbSet.Remove(entity);
 			await Persist();
 		}
 
-		public async Task Persist()
+		public virtual async Task Persist()
 		{
 			await _db.SaveChangesAsync();
 		}
+
 
 		private IQueryable<T> configQuery(IQueryable<T> query, Expression<Func<T, bool>>? filter, bool tracked)
 		{
