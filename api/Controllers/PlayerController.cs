@@ -22,7 +22,7 @@ namespace api.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<ActionResult<IEnumerable<PlayerDto>>> Get()
         {
-            return Ok(await _service.Get());
+            return Ok(await _service.GetAll());
         }
 
 
@@ -32,7 +32,7 @@ namespace api.Controllers
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<ActionResult<PlayerDto>> Get(int id)
         {
-            var playerDto = await _service.Get(id);
+            var playerDto = await _service.GetById(id);
 
             if (id <= 0)
                 return BadRequest();
@@ -66,7 +66,7 @@ namespace api.Controllers
             if (playerDto == null || id != playerDto.Id)
                 return BadRequest();
 
-            await _service.Update(playerDto);
+            await _service.UpdateWith(playerDto);
 
             return NoContent();
         }
@@ -80,7 +80,7 @@ namespace api.Controllers
             if (id <= 0)
                 return BadRequest();
             
-            await _service.Delete(id);
+            await _service.DeleteWithId(id);
             return NoContent();
         }
     }
