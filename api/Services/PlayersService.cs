@@ -3,18 +3,18 @@
 using api.General;
 using api.Models.Dtos.Player;
 using api.Models.Entities;
-using api.Repositories;
+using api.Repositories.Interfaces;
 
 
 namespace api.Services
 {
     public class PlayersService : IAsyncCRUD<PlayerDto>
 	{
-		protected readonly PlayersRepository _repo;
+		protected readonly IBaseCRUDRepository<Player> _repo;
 		protected readonly IMapper _mapper;
 
 
-		public PlayersService(PlayersRepository playersRepository, IMapper mapper)
+		public PlayersService(IBaseCRUDRepository<Player> playersRepository, IMapper mapper)
 		{
 			_repo = playersRepository;
 			_mapper = mapper;
@@ -49,13 +49,13 @@ namespace api.Services
 
 		public async Task<IEnumerable<PlayerDto>> Get()
 		{
-			return (await _repo.Get()).Select(p => _mapper.Map<PlayerDto>(p));
+			return (await _repo.ReadMany()).Select(p => _mapper.Map<PlayerDto>(p));
 		}
 
 
 		public async Task<PlayerDto?> Get(int id)
 		{
-			var player = await _repo.Get(id);
+			var player = await _repo.ReadSingle(p => p.Id == id);
 			if (player == null)
 				return null;
 			return _mapper.Map<PlayerDto>(player);
