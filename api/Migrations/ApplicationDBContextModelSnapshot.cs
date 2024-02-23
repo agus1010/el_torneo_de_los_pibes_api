@@ -22,6 +22,21 @@ namespace api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("PlayerTeam", b =>
+                {
+                    b.Property<int>("PlayersId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TeamsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PlayersId", "TeamsId");
+
+                    b.HasIndex("TeamsId");
+
+                    b.ToTable("PlayerTeam");
+                });
+
             modelBuilder.Entity("api.Models.Entities.Bet", b =>
                 {
                     b.Property<int>("Id")
@@ -114,29 +129,6 @@ namespace api.Migrations
                     b.ToTable("Players");
                 });
 
-            modelBuilder.Entity("api.Models.Entities.PlayersInTeam", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("PlayerId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("TeamId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlayerId");
-
-                    b.HasIndex("TeamId");
-
-                    b.ToTable("PlayersInTeam");
-                });
-
             modelBuilder.Entity("api.Models.Entities.Team", b =>
                 {
                     b.Property<int>("Id")
@@ -213,6 +205,21 @@ namespace api.Migrations
                     b.ToTable("TournamentsPlayersScores");
                 });
 
+            modelBuilder.Entity("PlayerTeam", b =>
+                {
+                    b.HasOne("api.Models.Entities.Player", null)
+                        .WithMany()
+                        .HasForeignKey("PlayersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Models.Entities.Team", null)
+                        .WithMany()
+                        .HasForeignKey("TeamsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("api.Models.Entities.Bet", b =>
                 {
                     b.HasOne("api.Models.Entities.Player", "Creator")
@@ -267,21 +274,6 @@ namespace api.Migrations
                     b.Navigation("Tournament");
                 });
 
-            modelBuilder.Entity("api.Models.Entities.PlayersInTeam", b =>
-                {
-                    b.HasOne("api.Models.Entities.Player", "Player")
-                        .WithMany()
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("api.Models.Entities.Team", null)
-                        .WithMany("PlayersInTeam")
-                        .HasForeignKey("TeamId");
-
-                    b.Navigation("Player");
-                });
-
             modelBuilder.Entity("api.Models.Entities.TournamentsPlayersScores", b =>
                 {
                     b.HasOne("api.Models.Entities.Player", "Player")
@@ -295,11 +287,6 @@ namespace api.Migrations
                         .HasForeignKey("TournamentId");
 
                     b.Navigation("Player");
-                });
-
-            modelBuilder.Entity("api.Models.Entities.Team", b =>
-                {
-                    b.Navigation("PlayersInTeam");
                 });
 
             modelBuilder.Entity("api.Models.Entities.Tournament", b =>
