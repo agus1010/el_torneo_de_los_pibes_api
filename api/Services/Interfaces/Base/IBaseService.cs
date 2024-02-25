@@ -1,10 +1,9 @@
 ﻿namespace api.Services.Interfaces.Base
 {
-    public interface IBaseService<TDto, TCreationDto>
+    public interface IBaseService<TDto>
         where TDto : class
-        where TCreationDto : class
     {
-        Task<TDto> Create(TCreationDto creationDto);
+        Task<TDto> Create(TDto dto);
         Task Delete(TDto dto);
         Task UpdateWith(TDto teamDto);
     }

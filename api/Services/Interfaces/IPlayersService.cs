@@ -6,6 +6,8 @@ namespace api.Services.Interfaces
 {
     public interface IPlayersService : IIdDependantService<PlayerDto, PlayerCreationDto>
 	{
+		public Task<PlayerDto> Create(PlayerCreationDto playerCreationDto);
+		public Task<IEnumerable<PlayerDto>> GetById(IEnumerable<int> ids);
 		public Task<IEnumerable<PlayerDto>> GetAll();
 	}
 }

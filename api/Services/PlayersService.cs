@@ -8,18 +8,26 @@ using api.Services.Interfaces;
 
 namespace api.Services
 {
-    public class PlayersService : BaseService<Player, PlayerDto, PlayerCreationDto>, IPlayersService
+    public class PlayersService : BaseService<Player, PlayerDto>, IPlayersService
 	{
 		public PlayersService(IBaseCRUDRepository<Player> repository, IMapper mapper) : base(repository, mapper)
 		{ }
 
 
+		public async Task<PlayerDto> Create(PlayerCreationDto creationDto)
+			 => await Create(_mapper.Map<PlayerDto>(creationDto));
+
+
 		public async Task<PlayerDto?> GetById(int id)
 			=> (await Get(p => p.Id == id)).FirstOrDefault();
+
+		public async Task<IEnumerable<PlayerDto>> GetById(IEnumerable<int> ids)
+			=> ids.Select()
 
 
 		public async Task<IEnumerable<PlayerDto>> GetAll()
 			=> await Get();
+
 
 
 		public async Task DeleteWithId(int id)

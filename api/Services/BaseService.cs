@@ -7,10 +7,9 @@ using api.Services.Interfaces.Base;
 
 namespace api.Services
 {
-    public class BaseService<TEntity, TDto, TCreationDto> : IBaseService<TDto, TCreationDto>
+    public class BaseService<TEntity, TDto> : IBaseService<TDto>
 		where TEntity : class
 		where TDto : class
-		where TCreationDto : class
 	{
 		protected readonly IBaseCRUDRepository<TEntity> _repo;
 		protected readonly IMapper _mapper;
@@ -24,9 +23,9 @@ namespace api.Services
 
 
 
-		public virtual async Task<TDto> Create(TCreationDto creationDto)
+		public virtual async Task<TDto> Create(TDto dto)
 		{
-			TEntity persistedEntity = await _repo.Create(_mapper.Map<TEntity>(creationDto));
+			TEntity persistedEntity = await _repo.Create(_mapper.Map<TEntity>(dto));
 			TDto newDto = _mapper.Map<TDto>(persistedEntity);
 			return newDto;
 		}

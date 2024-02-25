@@ -4,14 +4,29 @@ using api.Models.Dtos.Team;
 using api.Models.Entities;
 using api.Repositories.Interfaces;
 using api.Services.Interfaces;
+using api.Models.Dtos.Player;
 
 
 namespace api.Services
 {
-	public class TeamsService : BaseService<Team, TeamDto, TeamCreationDto>, ITeamsService
+	public class TeamsService : BaseService<Team, TeamDto>, ITeamsService
 	{
-		public TeamsService(IBaseCRUDRepository<Team> repository, IMapper mapper) : base(repository, mapper)
-		{ }
+		protected readonly IBaseCRUDRepository<Player> _playersRepo;
+		public TeamsService(IBaseCRUDRepository<Team> teamsRepo, IPlayersService playersRepo, IMapper mapper) : base(teamsRepo, mapper)
+		{
+			_playersRepo = playersRepo;
+		}
+
+
+		public async Task<TeamDto> Create(TeamCreationDto teamCreationDto)
+		{
+			var teamDto = _mapper.Map<TeamDto>(teamCreationDto);
+			teamDto.Players = teamCreationDto.PlayerIds
+				.Select(id => _playersRepo.ReadSingle(p => p.Id == id))
+				.Where(p => p != null)
+				.Select(p => _mapper.Map<PlayerDto>(p));
+			return await Create(teamDto);
+		}
 
 
 		public async Task<TeamDto?> GetById(int id)

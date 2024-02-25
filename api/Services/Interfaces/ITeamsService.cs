@@ -6,6 +6,7 @@ namespace api.Services.Interfaces
 {
 	public interface ITeamsService : IIdDependantService<TeamDto, TeamCreationDto>
 	{
+		Task<TeamDto> Create(TeamCreationDto teamCreationDto);
 		Task<IEnumerable<TeamDto>> GetAll();
 	}
 }
