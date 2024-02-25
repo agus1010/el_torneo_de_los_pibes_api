@@ -22,7 +22,7 @@ builder.Services.AddAutoMapper(typeof(PlayerMappingProfile));
 
 
 builder.Services.AddScoped<IBaseCRUDRepository<Player>, BaseCRUDRepository<Player>>();
-builder.Services.AddScoped<IBaseCRUDRepository<Team>, BaseCRUDRepository<Team>>();
+builder.Services.AddScoped<IBaseCRUDRepository<Team>, TeamsRepository>();
 
 builder.Services.AddScoped<IPlayersService, PlayersService>();
 builder.Services.AddScoped<ITeamsService, TeamsService>();

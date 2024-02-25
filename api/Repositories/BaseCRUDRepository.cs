@@ -10,7 +10,7 @@ namespace api.Repositories
 	public class BaseCRUDRepository<T> : IBaseCRUDRepository<T> where T : class
 	{
 		protected readonly ApplicationDBContext _db;
-		internal readonly DbSet<T> dbSet;
+		protected DbSet<T> dbSet;
 
 		public BaseCRUDRepository(ApplicationDBContext db)
 		{
@@ -63,7 +63,7 @@ namespace api.Repositories
 		}
 
 
-		private IQueryable<T> configQuery(IQueryable<T> query, Expression<Func<T, bool>>? filter, bool tracked)
+		protected virtual IQueryable<T> configQuery(IQueryable<T> query, Expression<Func<T, bool>>? filter, bool tracked)
 		{
 			if (!tracked)
 				query = query.AsNoTracking();

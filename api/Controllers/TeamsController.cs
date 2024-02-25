@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using api.Data;
-using api.Models.Entities;
+﻿using Microsoft.AspNetCore.Mvc;
+
+using api.Models.Dtos.Player;
+using api.Models.Dtos.Team;
+using api.Services.Interfaces;
+
 
 namespace api.Controllers
 {
@@ -14,95 +11,77 @@ namespace api.Controllers
     [ApiController]
     public class TeamsController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
+        private readonly ITeamsService _service;
 
-        public TeamsController(ApplicationDBContext context)
+        public TeamsController(ITeamsService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: api/Teams
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Team>>> GetTeams()
-        {
-            return await _context.Teams.ToListAsync();
-        }
+		[HttpGet]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		public async Task<ActionResult<IEnumerable<PlayerDto>>> Get()
+		{
+			return Ok(await _service.GetAll());
+		}
 
-        // GET: api/Teams/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Team>> GetTeam(int id)
-        {
-            var team = await _context.Teams.FindAsync(id);
 
-            if (team == null)
-            {
-                return NotFound();
-            }
+		[HttpGet("{id}")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<TeamDto>> Get(int id)
+		{
+			if (id <= 0)
+				return BadRequest();
 
-            return team;
-        }
+			var teamDto = await _service.GetById(id);
 
-        // PUT: api/Teams/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutTeam(int id, Team team)
-        {
-            if (id != team.Id)
-            {
-                return BadRequest();
-            }
+			if (teamDto == null)
+				return NotFound();
 
-            _context.Entry(team).State = EntityState.Modified;
+			return Ok(teamDto);
+		}
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TeamExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
-        }
+		[HttpPost]
+		[ProducesResponseType(StatusCodes.Status201Created)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<ActionResult<TeamDto>> Create(TeamCreationDto teamCreationDto)
+		{
+			if (teamCreationDto == null)
+				return BadRequest();
 
-        // POST: api/Teams
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Team>> PostTeam(Team team)
-        {
-            _context.Teams.Add(team);
-            await _context.SaveChangesAsync();
+			var newTeamDto = await _service.Create(teamCreationDto);
 
-            return CreatedAtAction("GetTeam", new { id = team.Id }, team);
-        }
+			return CreatedAtAction("Get", new { id = newTeamDto.Id }, newTeamDto);
+		}
 
-        // DELETE: api/Teams/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTeam(int id)
-        {
-            var team = await _context.Teams.FindAsync(id);
-            if (team == null)
-            {
-                return NotFound();
-            }
 
-            _context.Teams.Remove(team);
-            await _context.SaveChangesAsync();
+		[HttpPut("{id}")]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> Update(int id, TeamDto teamDto)
+		{
+			if (id <= 0 || teamDto == null || id != teamDto.Id)
+				return BadRequest();
 
-            return NoContent();
-        }
+			await _service.UpdateWith(teamDto);
 
-        private bool TeamExists(int id)
-        {
-            return _context.Teams.Any(e => e.Id == id);
-        }
-    }
+			return NoContent();
+		}
+
+
+		[HttpDelete("{id}")]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> Delete(int id)
+		{
+			if (id <= 0)
+				return BadRequest();
+
+			await _service.DeleteWithId(id);
+			return NoContent();
+		}
+	}
 }

@@ -32,10 +32,10 @@ namespace api.Controllers
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<ActionResult<PlayerDto>> Get(int id)
         {
-            var playerDto = await _service.GetById(id);
-
             if (id <= 0)
                 return BadRequest();
+            
+            var playerDto = await _service.GetById(id);
 
             if (playerDto == null)
                 return NotFound();
@@ -63,7 +63,7 @@ namespace api.Controllers
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public async Task<IActionResult> Update(int id, PlayerDto playerDto)
         {
-            if (playerDto == null || id != playerDto.Id)
+            if (id <= 0 || playerDto == null || id != playerDto.Id)
                 return BadRequest();
 
             await _service.UpdateWith(playerDto);
