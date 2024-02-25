@@ -21,8 +21,18 @@ namespace api.Services
 		public async Task<PlayerDto?> GetById(int id)
 			=> (await Get(p => p.Id == id)).FirstOrDefault();
 
+
 		public async Task<IEnumerable<PlayerDto>> GetById(IEnumerable<int> ids)
-			=> ids.Select()
+		{
+			var players = new List<PlayerDto>();
+            foreach (var id in ids)
+            {
+				var player = await _repo.ReadSingle(p => p.Id == id);
+				if (player != null)
+					players.Add(_mapper.Map<PlayerDto>(player));
+            }
+			return players;
+        }
 
 
 		public async Task<IEnumerable<PlayerDto>> GetAll()
