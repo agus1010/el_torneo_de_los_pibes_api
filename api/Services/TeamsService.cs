@@ -15,11 +15,11 @@ namespace api.Services
 
 
 		public async Task<TeamDto?> GetById(int id)
-			=> (await Get(t => t.Id == id)).FirstOrDefault();
+			=> (await Get(filter: t => t.Id == id, includeField: "Players")).FirstOrDefault();
 
 
 		public async Task<IEnumerable<TeamDto>> GetAll()
-			=> await Get();
+			=> await Get(includeField: "Players");
 
 
 		public async Task DeleteWithId(int id)

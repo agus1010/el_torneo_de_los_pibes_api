@@ -40,7 +40,7 @@ namespace api.Services
 			=> await _repo.Update(_mapper.Map<TEntity>(teamDto));
 		
 		
-		protected virtual async Task<IEnumerable<TDto>> Get(Expression<Func<TEntity, bool>>? filter = null)
-			=> (await _repo.ReadMany(filter, false)).Select(e => _mapper.Map<TDto>(e));
+		protected virtual async Task<IEnumerable<TDto>> Get(Expression<Func<TEntity, bool>>? filter = null, bool trackEntities = false, string? includeField = null)
+			=> (await _repo.ReadMany(filter, trackEntities, includeField)).Select(e => _mapper.Map<TDto>(e));
 	}
 }

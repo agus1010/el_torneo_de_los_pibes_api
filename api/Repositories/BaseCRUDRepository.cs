@@ -26,15 +26,15 @@ namespace api.Repositories
 			return entity;
 		}
 
-		public virtual async Task<T?> ReadSingle(Expression<Func<T, bool>>? filter = null, bool tracked = true)
+		public virtual async Task<T?> ReadSingle(Expression<Func<T, bool>>? filter = null, bool tracked = true, string? includeField = null)
 		{
-			var query = configQuery(dbSet, filter, tracked);
+			var query = configQuery(dbSet, filter, tracked, includeField);
 			return await query.FirstOrDefaultAsync();
 		}
 
-		public virtual async Task<IEnumerable<T>> ReadMany(Expression<Func<T, bool>>? filter = null, bool tracked = true)
+		public virtual async Task<IEnumerable<T>> ReadMany(Expression<Func<T, bool>>? filter = null, bool tracked = true, string? includeField = null)
 		{
-			var query = configQuery(dbSet, filter, tracked);
+			var query = configQuery(dbSet, filter, tracked, includeField);
 			return await query.ToListAsync();
 		}
 
@@ -63,12 +63,14 @@ namespace api.Repositories
 		}
 
 
-		protected virtual IQueryable<T> configQuery(IQueryable<T> query, Expression<Func<T, bool>>? filter, bool tracked)
+		protected virtual IQueryable<T> configQuery(IQueryable<T> query, Expression<Func<T, bool>>? filter, bool tracked, string? includeField = null)
 		{
 			if (!tracked)
 				query = query.AsNoTracking();
 			if (filter != null)
 				query = query.Where(filter);
+			if (includeField != null)
+				query = query.Include(includeField);
 			return query;
 		}
 	}
