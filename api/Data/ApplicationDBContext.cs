@@ -3,6 +3,7 @@
 using api.Models.Entities;
 
 
+// https://learn.microsoft.com/en-us/ef/core/modeling/relationships/many-to-many
 namespace api.Data
 {
 	public class ApplicationDBContext : DbContext
@@ -27,6 +28,15 @@ namespace api.Data
 			// Connect to postgres with connection string from app settings
 			optionsBuilder.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
 			base.OnConfiguring(optionsBuilder);
+		}
+
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			base.OnModelCreating(modelBuilder);
+			
+			modelBuilder.Entity<Team>()
+				.HasMany(t => t.Players)
+				.WithMany();
 		}
 	}
 }

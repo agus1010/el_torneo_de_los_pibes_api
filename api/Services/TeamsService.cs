@@ -11,24 +11,33 @@ namespace api.Services
 {
 	public class TeamsService : BaseService<Team, TeamDto>, ITeamsService
 	{
-		protected readonly IPlayersService _playersRepo;
+		protected readonly IPlayersService _playersService;
 
 		public TeamsService(IBaseCRUDRepository<Team> teamsRepo, IPlayersService playersRepo, IMapper mapper) : base(teamsRepo, mapper)
 		{
-			_playersRepo = playersRepo;
+			_playersService = playersRepo;
 		}
 
 
 		public async Task<TeamDto> Create(TeamCreationDto teamCreationDto)
 		{
-			var teamDto = _mapper.Map<TeamDto>(teamCreationDto);
-			teamDto.Players = await _playersRepo.GetById(teamCreationDto.PlayerIds);
-			return await Create(teamDto);
+			var players = await _playersService.GetById(teamCreationDto.PlayerIds);
+			
+			if (players.Count() < teamCreationDto.PlayerIds.Count)
+				throw new Exception();
+
+			var newTeam = _mapper.Map<Team>(teamCreationDto);
+			newTeam.Players = _mapper.Map<ICollection<Player>>(players).ToList();
+
+			await _repo.Create(newTeam);
+			await _repo.Persist();
+
+			return _mapper.Map<TeamDto>(newTeam);
 		}
 
 
 		public async Task<TeamDto?> GetById(int id)
-			=> (await Get(filter: t => t.Id == id, includeField: "Players")).FirstOrDefault();
+			=> (await Get(filter: t => t.Id == id, trackEntities: false, includeField: "Players")).FirstOrDefault();
 
 
 		public async Task<IEnumerable<TeamDto>> GetById(IEnumerable<int> ids)
@@ -36,7 +45,7 @@ namespace api.Services
 			var teams = new List<TeamDto>();
 			foreach (var id in ids)
 			{
-				var team = await _repo.ReadSingle(t => t.Id == id, includeField: "Players");
+				var team = await _repo.ReadSingle(t => t.Id == id, tracked:false, includeField: "Players");
 				if (team != null)
 					teams.Add(_mapper.Map<TeamDto>(team));
 			}

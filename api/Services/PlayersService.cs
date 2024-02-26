@@ -19,7 +19,7 @@ namespace api.Services
 
 
 		public async Task<PlayerDto?> GetById(int id)
-			=> (await Get(p => p.Id == id)).FirstOrDefault();
+			=> (await Get(filter: p => p.Id == id, trackEntities: false)).FirstOrDefault();
 
 
 		public async Task<IEnumerable<PlayerDto>> GetById(IEnumerable<int> ids)
@@ -27,7 +27,7 @@ namespace api.Services
 			var players = new List<PlayerDto>();
             foreach (var id in ids)
             {
-				var player = await _repo.ReadSingle(p => p.Id == id);
+				var player = await _repo.ReadSingle(p => p.Id == id, tracked: false);
 				if (player != null)
 					players.Add(_mapper.Map<PlayerDto>(player));
             }

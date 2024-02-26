@@ -27,12 +27,12 @@ namespace api.Migrations
                     b.Property<int>("PlayersId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TeamsId")
+                    b.Property<int>("TeamId")
                         .HasColumnType("integer");
 
-                    b.HasKey("PlayersId", "TeamsId");
+                    b.HasKey("PlayersId", "TeamId");
 
-                    b.HasIndex("TeamsId");
+                    b.HasIndex("TeamId");
 
                     b.ToTable("PlayerTeam");
                 });
@@ -117,7 +117,6 @@ namespace api.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -215,7 +214,7 @@ namespace api.Migrations
 
                     b.HasOne("api.Models.Entities.Team", null)
                         .WithMany()
-                        .HasForeignKey("TeamsId")
+                        .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
