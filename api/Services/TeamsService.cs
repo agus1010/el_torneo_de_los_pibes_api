@@ -26,13 +26,10 @@ namespace api.Services
 			if (players.Count() < teamCreationDto.PlayerIds.Count)
 				throw new Exception();
 
-			var newTeam = _mapper.Map<Team>(teamCreationDto);
-			newTeam.Players = _mapper.Map<ICollection<Player>>(players).ToList();
+			var teamDto = _mapper.Map<TeamDto>(teamCreationDto);
+			teamDto.Players = _mapper.Map<ISet<PlayerDto>>(players);
 
-			await _repo.Create(newTeam);
-			await _repo.Persist();
-
-			return _mapper.Map<TeamDto>(newTeam);
+			return await Create(teamDto);
 		}
 
 

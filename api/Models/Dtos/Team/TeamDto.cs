@@ -7,6 +7,6 @@ namespace api.Models.Dtos.Team
 	{
 		public int Id { get; set; }
 		public string Name { get; set; } = string.Empty;
-		public IEnumerable<PlayerDto> Players { get; set; } = new List<PlayerDto>();
+		public ISet<PlayerDto> Players { get; set; } = new HashSet<PlayerDto>();
 	}
 }
