@@ -18,6 +18,29 @@ namespace api.Controllers
             _service = service;
         }
 
+
+		[HttpGet("{id}/addPlayer")]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult> AddPlayer(int id, int playerId)
+		{
+			if (id <= 0 || playerId <= 0)
+				return BadRequest();
+			
+			try
+			{
+				await _service.AddPlayer(id, playerId);
+			}
+			catch (Exception)
+			{
+				return BadRequest();
+			}
+
+			return NoContent();
+		}
+
+
 		[HttpGet]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<ActionResult<IEnumerable<PlayerDto>>> Get()

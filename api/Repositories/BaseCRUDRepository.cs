@@ -40,15 +40,8 @@ namespace api.Repositories
 
 		public virtual async Task Update(T entity)
 		{
-			_db.Entry(entity).State = EntityState.Modified;
-			try
-			{
-				await Persist();
-			}
-			catch (DbUpdateConcurrencyException)
-			{
-				throw;
-			}
+			dbSet.Update(entity);
+			await Persist();
 		}
 
 		public virtual async Task Delete(T entity)

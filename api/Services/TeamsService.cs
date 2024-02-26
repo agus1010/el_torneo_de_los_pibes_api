@@ -19,6 +19,25 @@ namespace api.Services
 		}
 
 
+		public async Task AddPlayer(int teamId, int playerId)
+		{
+			var teamDto = await GetById(teamId);
+			if (teamDto == null)
+				throw new Exception();
+			
+			if (teamDto.Players.Select(p => p.Id).Contains(playerId))
+				throw new Exception();
+			
+			var playerDto = await _playersService.GetById(playerId);
+			if (playerDto == null)
+				throw new Exception();
+
+			teamDto.Players.Add(playerDto);
+
+			await UpdateWith(teamDto);
+		}
+
+
 		public async Task<TeamDto> Create(TeamCreationDto teamCreationDto)
 		{
 			var players = await _playersService.GetById(teamCreationDto.PlayerIds);
@@ -53,7 +72,7 @@ namespace api.Services
 		public async Task<IEnumerable<TeamDto>> GetAll()
 			=> await Get(includeField: "Players");
 
-
+		
 		public async Task DeleteWithId(int id)
 		{
 			TeamDto? target = await GetById(id);
