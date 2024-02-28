@@ -14,22 +14,38 @@ namespace api.Repositories
 
 		public async override Task<Team> Create(Team team)
 		{
-			setPlayersInTeamToIgnore(team);
-			return await base.Create(team);
+			foreach (var p in team.Players)
+				_context.Set<Player>().Entry(p).State = EntityState.Detached;
+			await base.Create(team);
+			return team;
 		}
 
-		public async override Task Update(Team team)
+
+		public async Task AddPlayers(Team team, IEnumerable<Player> players)
 		{
-			setPlayersInTeamToIgnore(team);
-			_db.Set<Team>().Entry(team).State = EntityState.Modified;
+			foreach (var p in players)
+			{
+				_context.Players.Add(p);
+				_context.Players.Attach(p);
+				team.Players.Add(p);
+			}
 			await Persist();
 		}
 
 
-		private void setPlayersInTeamToIgnore(Team team)
+		public async Task RemovePlayers(Team team, IEnumerable<Player> players)
 		{
-			foreach (var p in team.Players)
-				_db.Set<Player>().Entry(p).State = EntityState.Unchanged;
+			var targetTeam = await _context.Teams.Include(t => t.Players)
+				.FirstOrDefaultAsync(t => t.Id == team.Id);
+
+			var selectedIds = players.Select(p => p.Id);
+
+			var playersToDelete = targetTeam!.Players
+				.Where(p => selectedIds.Contains(p.Id)).ToList();
+
+			foreach (var player in playersToDelete)
+				team.Players.Remove(player);
+			await Persist();
 		}
 	}
 }

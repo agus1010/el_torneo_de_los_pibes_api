@@ -9,13 +9,13 @@ namespace api.Repositories
 {
 	public class BaseCRUDRepository<T> : IBaseCRUDRepository<T> where T : class
 	{
-		protected readonly ApplicationDBContext _db;
+		protected readonly ApplicationDBContext _context;
 		protected DbSet<T> dbSet;
 
 		public BaseCRUDRepository(ApplicationDBContext db)
 		{
-			_db = db;
-			dbSet = _db.Set<T>();
+			_context = db;
+			dbSet = _context.Set<T>();
 		}
 
 
@@ -52,7 +52,7 @@ namespace api.Repositories
 
 		public virtual async Task Persist()
 		{
-			await _db.SaveChangesAsync();
+			await _context.SaveChangesAsync();
 		}
 
 

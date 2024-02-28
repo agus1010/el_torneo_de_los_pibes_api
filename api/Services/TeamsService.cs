@@ -5,6 +5,7 @@ using api.Models.Dtos.Team;
 using api.Models.Entities;
 using api.Repositories.Interfaces;
 using api.Services.Interfaces;
+using api.Repositories;
 
 
 namespace api.Services
@@ -12,58 +13,30 @@ namespace api.Services
 	public class TeamsService : BaseService<Team, TeamDto>, ITeamsService
 	{
 		protected readonly IPlayersService _playersService;
+		protected readonly IBaseCRUDRepository<Player> playersRepo;
 
-		public TeamsService(IBaseCRUDRepository<Team> teamsRepo, IPlayersService playersRepo, IMapper mapper) : base(teamsRepo, mapper)
+		public TeamsService(IBaseCRUDRepository<Team> teamsRepo, IPlayersService playersService, IBaseCRUDRepository<Player> playersRepo, IMapper mapper) : base(teamsRepo, mapper)
 		{
-			_playersService = playersRepo;
+			_playersService = playersService;
+			this.playersRepo = playersRepo;
 		}
 
 
 		public async Task AddPlayers(int teamId, ISet<int> playerIds)
 		{
-			var teamDto = await GetById(teamId);
-			if (teamDto == null)
-				throw new Exception();
+			var team = await _repo.ReadSingle(t => t.Id == teamId, tracked: true);
+			var players = await playersRepo.ReadMany(t => playerIds.Contains(t.Id), tracked: false);
 
-			var teamPlayerIds = teamDto.Players.Select(p => p.Id).ToArray();
-			var playerDtosToAdd = await _playersService.GetById(playerIds);
-			foreach (var playerDto in playerDtosToAdd)
-			{
-				if (teamPlayerIds.Contains(playerDto.Id))
-					continue;
-				teamDto.Players.Add(playerDto);
-			}
-
-			await UpdateWith(teamDto);
+			await ((TeamsRepository)_repo).AddPlayers(team!, players);
 		}
 
 
 		public async Task RemovePlayers(int teamId, ISet<int> playerIds)
 		{
-			var teamDto = await GetById(teamId);
-			if (teamDto == null)
-				throw new Exception();
+			var team = await _repo.ReadSingle(t => t.Id == teamId, tracked: true);
+			var players = await playersRepo.ReadMany(t => playerIds.Contains(t.Id), tracked: false);
 
-			int paramPlayerIdsCount = playerIds.Count;
-
-			if (paramPlayerIdsCount > teamDto.Players.Count)
-				throw new Exception();
-
-			var teamPlayerIds = teamDto.Players.Select(p => p.Id).ToArray();
-			foreach (var id in playerIds)
-			{
-				if (!teamPlayerIds.Contains(id))
-					throw new Exception();
-			}
-
-			var givePlayerDtos = await _playersService.GetById(playerIds);
-			if (givePlayerDtos.Count() != paramPlayerIdsCount)
-				throw new Exception();
-
-			foreach (var playerDto in givePlayerDtos)
-				teamDto.Players.Remove(playerDto);
-
-			await UpdateWith(teamDto);
+			await ((TeamsRepository)_repo).RemovePlayers(team!, players);
 		}
 
 
