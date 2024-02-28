@@ -24,10 +24,12 @@ namespace api.Services
 
 		public async Task AddPlayers(int teamId, ISet<int> playerIds)
 		{
-			var team = await _repo.ReadSingle(t => t.Id == teamId, tracked: true);
+			await ((TeamsRepository)_repo).AddPlayers(teamId, playerIds);
+
+			/*var team = await _repo.ReadSingle(t => t.Id == teamId, tracked: true);
 			var players = await playersRepo.ReadMany(t => playerIds.Contains(t.Id), tracked: false);
 
-			await ((TeamsRepository)_repo).AddPlayers(team!, players);
+			await ((TeamsRepository)_repo).AddPlayers(team!, players);*/
 		}
 
 
@@ -36,21 +38,15 @@ namespace api.Services
 			var team = await _repo.ReadSingle(t => t.Id == teamId, tracked: true);
 			var players = await playersRepo.ReadMany(t => playerIds.Contains(t.Id), tracked: false);
 
-			await ((TeamsRepository)_repo).RemovePlayers(team!, players);
+			await ((TeamsRepository)_repo).RemovePlayers(team!, players.ToHashSet());
 		}
 
 
 		public async Task<TeamDto> Create(TeamCreationDto teamCreationDto)
 		{
-			var players = await _playersService.GetById(teamCreationDto.PlayerIds);
-			
-			if (players.Count() < teamCreationDto.PlayerIds.Count)
-				throw new Exception();
-
-			var teamDto = _mapper.Map<TeamDto>(teamCreationDto);
-			teamDto.Players = _mapper.Map<ISet<PlayerDto>>(players);
-
-			return await Create(teamDto);
+			var newTeam = await _repo.Create(_mapper.Map<Team>(teamCreationDto));
+			await ((TeamsRepository)_repo).AddPlayers(newTeam.Id, teamCreationDto.PlayerIds);
+			return _mapper.Map<TeamDto>(newTeam);
 		}
 
 

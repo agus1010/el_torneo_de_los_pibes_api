@@ -21,9 +21,39 @@ namespace api.Repositories
 		}
 
 
-		public async Task AddPlayers(Team team, IEnumerable<Player> players)
+		public async Task AddPlayers(int teamId, ISet<int> playerIds)
 		{
-			foreach (var p in players)
+			var team = await _context.Teams
+				.Include(t => t.Players)
+				.FirstOrDefaultAsync(t => t.Id == teamId);
+			
+			if (team == null)
+				throw new Exception();
+			
+			if (team.Players == null)
+				team.Players = new HashSet<Player>();
+
+			var players = new HashSet<Player>();
+			foreach (var pId in playerIds)
+			{
+				var targetPlayer = await _context.Players.FirstOrDefaultAsync(p => p.Id == pId);
+				if (targetPlayer == null)
+					throw new Exception();
+				players.Add(targetPlayer);
+			}
+
+			foreach (var p in players.ToList())
+			{
+				_context.Players.Add(p);
+				_context.Players.Attach(p);
+				team.Players.Add(p);
+			}
+			await Persist();
+		}
+
+		public async Task AddPlayers(Team team, ISet<Player> players)
+		{
+			foreach (var p in players.ToList())
 			{
 				_context.Players.Add(p);
 				_context.Players.Attach(p);
@@ -33,7 +63,7 @@ namespace api.Repositories
 		}
 
 
-		public async Task RemovePlayers(Team team, IEnumerable<Player> players)
+		public async Task RemovePlayers(Team team, ISet<Player> players)
 		{
 			var targetTeam = await _context.Teams.Include(t => t.Players)
 				.FirstOrDefaultAsync(t => t.Id == team.Id);
