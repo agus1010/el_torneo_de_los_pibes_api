@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using api.Models.Entities;
+using Microsoft.Extensions.Hosting;
 
 
 // https://learn.microsoft.com/en-us/ef/core/modeling/relationships/many-to-many
@@ -33,10 +34,15 @@ namespace api.Data
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
-			
-			modelBuilder.Entity<Team>()
+
+			/*modelBuilder.Entity<Team>()
 				.HasMany(t => t.Players)
-				.WithMany();
+				.WithMany()
+				.UsingEntity(
+					"PlayerTeam",
+					l => l.HasOne(typeof(Player)).WithMany().HasForeignKey("PlayersId").HasPrincipalKey(nameof(Player.Id)),
+					r => r.HasOne(typeof(Team)).WithMany().HasForeignKey("TeamsId").HasPrincipalKey(nameof(Team.Id)),
+					j => j.HasKey("PlayersId", "TeamsId"));*/
 		}
 	}
 }

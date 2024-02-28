@@ -19,22 +19,42 @@ namespace api.Controllers
         }
 
 
-		[HttpGet("{id}/addPlayer")]
+		[HttpPut("{id}/Players/Add")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public async Task<ActionResult> AddPlayer(int id, int playerId)
+		public async Task<ActionResult> AddPlayer(int id, ISet<int> playerIds)
 		{
-			if (id <= 0 || playerId <= 0)
+			if (id <= 0 || playerIds.Where(id => id <= 0).Count() > 0)
 				return BadRequest();
 			
 			try
 			{
-				await _service.AddPlayer(id, playerId);
+				await _service.AddPlayers(id, playerIds);
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
+				return BadRequest(e.ToString());
+			}
+			return NoContent();
+		}
+
+		[HttpPut("{id}/Players/Remove")]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult> RemovePlayer(int id, ISet<int> playerIds)
+		{
+			if (id <= 0 || playerIds.Where(id => id <= 0).Count() > 0)
 				return BadRequest();
+
+			try
+			{
+				await _service.RemovePlayers(id, playerIds);
+			}
+			catch (Exception e)
+			{
+				return BadRequest(e.ToString());
 			}
 
 			return NoContent();
@@ -84,12 +104,12 @@ namespace api.Controllers
 		[HttpPut("{id}")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
-		public async Task<IActionResult> Update(int id, TeamDto teamDto)
+		public async Task<IActionResult> Update(int id, TeamUpdateDto teamUpdateDto)
 		{
-			if (id <= 0 || teamDto == null || id != teamDto.Id)
+			if (id <= 0 || teamUpdateDto == null || id != teamUpdateDto.Id)
 				return BadRequest();
 
-			await _service.UpdateWith(teamDto);
+			await _service.UpdateWith(teamUpdateDto);
 
 			return NoContent();
 		}

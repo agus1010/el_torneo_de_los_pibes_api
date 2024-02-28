@@ -19,7 +19,7 @@ namespace api.Services
 
 
 		public async Task<PlayerDto?> GetById(int id)
-			=> (await Get(p => p.Id == id)).FirstOrDefault();
+			=> (await Get(p => p.Id == id, trackEntities: false)).FirstOrDefault();
 
 
 		public async Task<IEnumerable<PlayerDto>> GetById(IEnumerable<int> ids)

@@ -10,6 +10,6 @@ namespace api.Models.Entities
 		public string Name { get; set; } = string.Empty;
 
 		// navigation
-		public ISet<Player> Players { get; set; } = new HashSet<Player>();
+		public ISet<Player>? Players { get; set; }
 	}
 }

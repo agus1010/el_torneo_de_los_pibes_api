@@ -35,8 +35,8 @@ namespace api.Services
 			=> await _repo.Delete(_mapper.Map<TEntity>(dto));
 
 
-		public virtual async Task UpdateWith(TDto teamDto)
-			=> await _repo.Update(_mapper.Map<TEntity>(teamDto));
+		public virtual async Task UpdateWith(TDto dto)
+			=> await _repo.Update(_mapper.Map<TEntity>(dto));
 		
 		
 		protected virtual async Task<IEnumerable<TDto>> Get(Expression<Func<TEntity, bool>>? filter = null, bool trackEntities = false, string? includeField = null)

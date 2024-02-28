@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 
+using api.Models.Dtos.Player;
 using api.Models.Dtos.Team;
 using api.Models.Entities;
 using api.Repositories.Interfaces;
 using api.Services.Interfaces;
-using api.Models.Dtos.Player;
 
 
 namespace api.Services
@@ -19,20 +19,49 @@ namespace api.Services
 		}
 
 
-		public async Task AddPlayer(int teamId, int playerId)
+		public async Task AddPlayers(int teamId, ISet<int> playerIds)
 		{
 			var teamDto = await GetById(teamId);
 			if (teamDto == null)
 				throw new Exception();
-			
-			if (teamDto.Players.Select(p => p.Id).Contains(playerId))
-				throw new Exception();
-			
-			var playerDto = await _playersService.GetById(playerId);
-			if (playerDto == null)
+
+			var teamPlayerIds = teamDto.Players.Select(p => p.Id).ToArray();
+			var playerDtosToAdd = await _playersService.GetById(playerIds);
+			foreach (var playerDto in playerDtosToAdd)
+			{
+				if (teamPlayerIds.Contains(playerDto.Id))
+					continue;
+				teamDto.Players.Add(playerDto);
+			}
+
+			await UpdateWith(teamDto);
+		}
+
+
+		public async Task RemovePlayers(int teamId, ISet<int> playerIds)
+		{
+			var teamDto = await GetById(teamId);
+			if (teamDto == null)
 				throw new Exception();
 
-			teamDto.Players.Add(playerDto);
+			int paramPlayerIdsCount = playerIds.Count;
+
+			if (paramPlayerIdsCount > teamDto.Players.Count)
+				throw new Exception();
+
+			var teamPlayerIds = teamDto.Players.Select(p => p.Id).ToArray();
+			foreach (var id in playerIds)
+			{
+				if (!teamPlayerIds.Contains(id))
+					throw new Exception();
+			}
+
+			var givePlayerDtos = await _playersService.GetById(playerIds);
+			if (givePlayerDtos.Count() != paramPlayerIdsCount)
+				throw new Exception();
+
+			foreach (var playerDto in givePlayerDtos)
+				teamDto.Players.Remove(playerDto);
 
 			await UpdateWith(teamDto);
 		}
@@ -79,6 +108,12 @@ namespace api.Services
 			if (target == null)
 				throw new Exception();
 			await Delete(target);
+		}
+
+
+		public async Task UpdateWith(TeamUpdateDto teamUpdateDto)
+		{
+			await UpdateWith(_mapper.Map<TeamDto>(teamUpdateDto));
 		}
 	}
 }

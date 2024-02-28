@@ -6,8 +6,10 @@ namespace api.Services.Interfaces
 {
 	public interface ITeamsService : IIdDependantService<TeamDto, TeamCreationDto>
 	{
-		Task AddPlayer(int teamId, int playerId);
+		Task AddPlayers(int teamId, ISet<int> playerIds);
+		Task RemovePlayers(int teamId, ISet<int> playerIds);
 		Task<TeamDto> Create(TeamCreationDto teamCreationDto);
 		Task<IEnumerable<TeamDto>> GetAll();
+		Task UpdateWith(TeamUpdateDto teamUpdateDto);
 	}
 }

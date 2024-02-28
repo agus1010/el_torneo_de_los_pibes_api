@@ -27,12 +27,12 @@ namespace api.Migrations
                     b.Property<int>("PlayersId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TeamId")
+                    b.Property<int>("TeamsId")
                         .HasColumnType("integer");
 
-                    b.HasKey("PlayersId", "TeamId");
+                    b.HasKey("PlayersId", "TeamsId");
 
-                    b.HasIndex("TeamId");
+                    b.HasIndex("TeamsId");
 
                     b.ToTable("PlayerTeam");
                 });
@@ -214,7 +214,7 @@ namespace api.Migrations
 
                     b.HasOne("api.Models.Entities.Team", null)
                         .WithMany()
-                        .HasForeignKey("TeamId")
+                        .HasForeignKey("TeamsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

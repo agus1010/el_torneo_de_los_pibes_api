@@ -1,4 +1,6 @@
-﻿using api.Data;
+﻿using Microsoft.EntityFrameworkCore;
+
+using api.Data;
 using api.Models.Entities;
 
 
@@ -10,12 +12,24 @@ namespace api.Repositories
 		{ }
 
 
-		public override Task<Team> Create(Team entity)
+		public async override Task<Team> Create(Team team)
 		{
-			foreach (var p in entity.Players)
-				_db.Set<Player>().Attach(p);
-			
-			return base.Create(entity);
+			setPlayersInTeamToIgnore(team);
+			return await base.Create(team);
+		}
+
+		public async override Task Update(Team team)
+		{
+			setPlayersInTeamToIgnore(team);
+			_db.Set<Team>().Entry(team).State = EntityState.Modified;
+			await Persist();
+		}
+
+
+		private void setPlayersInTeamToIgnore(Team team)
+		{
+			foreach (var p in team.Players)
+				_db.Set<Player>().Entry(p).State = EntityState.Unchanged;
 		}
 	}
 }
