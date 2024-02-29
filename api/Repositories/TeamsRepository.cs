@@ -2,6 +2,7 @@
 
 using api.Data;
 using api.Models.Entities;
+using api.Models.Dtos.Team;
 
 
 namespace api.Repositories
@@ -15,8 +16,12 @@ namespace api.Repositories
 		public async override Task<Team> Create(Team team)
 		{
 			foreach (var p in team.Players)
-				_context.Set<Player>().Entry(p).State = EntityState.Detached;
-			await base.Create(team);
+			{
+				_context.Players.Add(p);
+				_context.Players.Attach(p);
+			}
+			await dbSet.AddAsync(team);
+			await Persist();
 			return team;
 		}
 
@@ -29,36 +34,54 @@ namespace api.Repositories
 			
 			if (team == null)
 				throw new Exception();
-			
 			if (team.Players == null)
 				team.Players = new HashSet<Player>();
 
-			var players = new HashSet<Player>();
 			foreach (var pId in playerIds)
 			{
 				var targetPlayer = await _context.Players.FirstOrDefaultAsync(p => p.Id == pId);
 				if (targetPlayer == null)
 					throw new Exception();
-				players.Add(targetPlayer);
-			}
-
-			foreach (var p in players.ToList())
-			{
-				_context.Players.Add(p);
-				_context.Players.Attach(p);
-				team.Players.Add(p);
+				_context.Players.Add(targetPlayer);
+				_context.Players.Attach(targetPlayer);
+				team.Players.Add(targetPlayer);
 			}
 			await Persist();
 		}
 
-		public async Task AddPlayers(Team team, ISet<Player> players)
+
+
+		public async Task RemovePlayers(int teamId, ISet<int> playerIds)
 		{
-			foreach (var p in players.ToList())
+			var team = await _context.Teams
+				.Include(t => t.Players)
+				.FirstOrDefaultAsync(t => t.Id == teamId);
+
+			if (team == null)
+				throw new Exception();
+			if (team.Players == null)
+				team.Players = new HashSet<Player>();
+			if (team.Players.Count == 0)
+				throw new Exception();
+
+			var playersToRemove = team.Players
+				.Select(p => p.Id)
+				.Intersect(playerIds)
+				.Zip(
+					team.Players,
+					(id, p) => p.Id == id ? p : throw new Exception()
+				)
+				.Where(p => p != null)
+				.ToList();
+
+			foreach (var player in playersToRemove)
 			{
-				_context.Players.Add(p);
-				_context.Players.Attach(p);
-				team.Players.Add(p);
+				_context.Players.Add(player!);
+				_context.Players.Attach(player!);
+				team.Players.Remove(player!);
+
 			}
+			
 			await Persist();
 		}
 

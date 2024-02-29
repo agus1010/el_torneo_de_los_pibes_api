@@ -20,9 +20,9 @@ builder.Services.AddDbContext<ApplicationDBContext>();
 
 builder.Services.AddAutoMapper(typeof(PlayerMappingProfile));
 
-
-builder.Services.AddScoped<IBaseCRUDRepository<Player>, BaseCRUDRepository<Player>>();
-builder.Services.AddScoped<IBaseCRUDRepository<Team>, TeamsRepository>();
+builder.Services.AddScoped<IBaseCRUDRepository<Player>, PlayersRepository>();
+builder.Services.AddScoped<PlayersRepository, PlayersRepository>();
+builder.Services.AddScoped<TeamsRepository, TeamsRepository>();
 
 builder.Services.AddScoped<IPlayersService, PlayersService>();
 builder.Services.AddScoped<ITeamsService, TeamsService>();

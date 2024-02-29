@@ -35,14 +35,14 @@ namespace api.Data
 		{
 			base.OnModelCreating(modelBuilder);
 
-			/*modelBuilder.Entity<Team>()
+			modelBuilder.Entity<Team>()
 				.HasMany(t => t.Players)
 				.WithMany()
 				.UsingEntity(
 					"PlayerTeam",
 					l => l.HasOne(typeof(Player)).WithMany().HasForeignKey("PlayersId").HasPrincipalKey(nameof(Player.Id)),
 					r => r.HasOne(typeof(Team)).WithMany().HasForeignKey("TeamsId").HasPrincipalKey(nameof(Team.Id)),
-					j => j.HasKey("PlayersId", "TeamsId"));*/
+					j => j.HasKey("PlayersId", "TeamsId"));
 		}
 	}
 }
