@@ -2,7 +2,6 @@
 
 using api.Data;
 using api.Models.Entities;
-using api.Models.Dtos.Team;
 
 
 namespace api.Repositories
@@ -11,6 +10,13 @@ namespace api.Repositories
 	{
 		public TeamsRepository(ApplicationDBContext db) : base(db)
 		{ }
+
+
+		public async Task<Team?> GetById(int id)
+			=> await _context.Teams.AsNoTracking().Include(t => t.Players).FirstOrDefaultAsync(t => t.Id == id);
+
+		public async Task<ISet<Player>> GetPlayers(int teamId)
+			=> (await GetById(teamId))?.Players!;
 
 
 		public async override Task<Team> Create(Team team)
@@ -23,6 +29,15 @@ namespace api.Repositories
 			await dbSet.AddAsync(team);
 			await Persist();
 			return team;
+		}
+
+
+		public async override Task Update(Team team)
+		{
+			_context.Teams.Entry(team).Collection(t => t.Players).IsModified = true;
+			_context.Teams.Entry(team).State = EntityState.Modified;
+			_context.Teams.Entry(team).DetectChanges();
+			await Persist();
 		}
 
 
@@ -79,25 +94,8 @@ namespace api.Repositories
 				_context.Players.Add(player!);
 				_context.Players.Attach(player!);
 				team.Players.Remove(player!);
-
 			}
 			
-			await Persist();
-		}
-
-
-		public async Task RemovePlayers(Team team, ISet<Player> players)
-		{
-			var targetTeam = await _context.Teams.Include(t => t.Players)
-				.FirstOrDefaultAsync(t => t.Id == team.Id);
-
-			var selectedIds = players.Select(p => p.Id);
-
-			var playersToDelete = targetTeam!.Players
-				.Where(p => selectedIds.Contains(p.Id)).ToList();
-
-			foreach (var player in playersToDelete)
-				team.Players.Remove(player);
 			await Persist();
 		}
 	}

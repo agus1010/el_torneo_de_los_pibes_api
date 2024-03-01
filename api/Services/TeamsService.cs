@@ -77,7 +77,9 @@ namespace api.Services
 
 		public async Task UpdateWith(TeamUpdateDto teamUpdateDto)
 		{
-			await UpdateWith(_mapper.Map<TeamDto>(teamUpdateDto));
+			var team = _mapper.Map<Team>(teamUpdateDto);
+			team.Players = (await ((TeamsRepository)_repo).GetPlayers(teamUpdateDto.Id));
+			await _repo.Update(team);
 		}
 	}
 }

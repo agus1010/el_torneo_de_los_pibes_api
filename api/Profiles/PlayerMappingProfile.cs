@@ -17,6 +17,7 @@ namespace api.Profiles
 
 			CreateMap<Team, TeamDto>().ReverseMap();
 			CreateMap<Team, TeamCreationDto>().ReverseMap();
+			CreateMap<Team, TeamUpdateDto>().ReverseMap();
 			CreateMap<TeamDto, TeamCreationDto>().ReverseMap();
 			CreateMap<TeamDto, TeamUpdateDto>().ReverseMap();
 		}
