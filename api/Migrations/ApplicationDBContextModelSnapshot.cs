@@ -94,7 +94,7 @@ namespace api.Migrations
                     b.Property<int>("Team2Id")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TournamentId")
+                    b.Property<int?>("TournamentId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -262,9 +262,7 @@ namespace api.Migrations
 
                     b.HasOne("api.Models.Entities.Tournament", "Tournament")
                         .WithMany("Matches")
-                        .HasForeignKey("TournamentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TournamentId");
 
                     b.Navigation("Team1");
 
