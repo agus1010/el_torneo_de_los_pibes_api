@@ -3,6 +3,7 @@
 using api.Models.Entities;
 using api.Models.Dtos.Player;
 using api.Models.Dtos.Team;
+using api.Models.Dtos.Match;
 
 
 namespace api.Profiles
@@ -20,6 +21,11 @@ namespace api.Profiles
 			CreateMap<Team, TeamUpdateDto>().ReverseMap();
 			CreateMap<TeamDto, TeamCreationDto>().ReverseMap();
 			CreateMap<TeamDto, TeamUpdateDto>().ReverseMap();
+
+            CreateMap<Match, MatchDto>().ReverseMap();
+            CreateMap<Match, MatchCreationDto>().ReverseMap();
+            CreateMap<Match, FriendlyMatchCreationDto>().ReverseMap();
+            CreateMap<MatchCreationDto, FriendlyMatchCreationDto>().ReverseMap();
 		}
     }
 }

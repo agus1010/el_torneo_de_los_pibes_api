@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using api.Data;
 using api.Models.Entities;
+using api.Models.Dtos.Match;
+
 
 namespace api.Controllers
 {
@@ -21,6 +19,15 @@ namespace api.Controllers
             _context = context;
         }
 
+
+		[HttpGet("{id}")]
+		public async Task<ActionResult<MatchDto>> GetMatch(int id)
+        {
+
+        }
+
+
+
         // GET: api/Matches
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Match>>> GetMatches()
@@ -29,7 +36,6 @@ namespace api.Controllers
         }
 
         // GET: api/Matches/5
-        [HttpGet("{id}")]
         public async Task<ActionResult<Match>> GetMatch(int id)
         {
             var match = await _context.Matches.FindAsync(id);
