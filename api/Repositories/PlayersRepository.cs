@@ -2,11 +2,12 @@
 
 using api.Data;
 using api.Models.Entities;
+using api.Repositories.Interfaces;
 
 
 namespace api.Repositories
 {
-	public class PlayersRepository : BaseCRUDRepository<Player>
+    public class PlayersRepository : BaseCRUDRepository<Player>, IPlayersRepository
 	{
 		public PlayersRepository(ApplicationDBContext db) : base(db)
 		{ }

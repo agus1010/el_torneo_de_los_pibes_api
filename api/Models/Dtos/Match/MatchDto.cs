@@ -1,5 +1,5 @@
 ﻿using api.Models.Dtos.Team;
-using api.Models.Entities;
+using api.Models.Dtos.Tournament;
 
 
 namespace api.Models.Dtos.Match
@@ -11,7 +11,7 @@ namespace api.Models.Dtos.Match
 		public TeamDto Team1 { get; set; } = new();
 		public TeamDto Team2 { get; set; } = new();
 
-		public Tournament? Tournament { get; set; }
+		public TournamentDto? Tournament { get; set; }
 
 		public int ScoreTeam1 { get; set; } = 0;
 		public int ScoreTeam2 { get; set; } = 0;

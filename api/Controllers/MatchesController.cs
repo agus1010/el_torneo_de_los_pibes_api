@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-using api.Data;
-using api.Models.Entities;
 using api.Models.Dtos.Match;
+using api.Services;
 
 
 namespace api.Controllers
@@ -12,103 +10,38 @@ namespace api.Controllers
     [ApiController]
     public class MatchesController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
+        private readonly MatchesService _service;
 
-        public MatchesController(ApplicationDBContext context)
+
+        public MatchesController(MatchesService matchesService)
         {
-            _context = context;
+            _service = matchesService;
         }
 
 
-		[HttpGet("{id}")]
-		public async Task<ActionResult<MatchDto>> GetMatch(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<MatchDto>> GetMatch(int id)
         {
-
-        }
-
-
-
-        // GET: api/Matches
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Match>>> GetMatches()
-        {
-            return await _context.Matches.ToListAsync();
-        }
-
-        // GET: api/Matches/5
-        public async Task<ActionResult<Match>> GetMatch(int id)
-        {
-            var match = await _context.Matches.FindAsync(id);
-
-            if (match == null)
-            {
-                return NotFound();
-            }
-
-            return match;
-        }
-
-        // PUT: api/Matches/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMatch(int id, Match match)
-        {
-            if (id != match.Id)
-            {
+            if (id <= 0)
                 return BadRequest();
-            }
-
-            _context.Entry(match).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MatchExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Matches
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Match>> PostMatch(Match match)
-        {
-            _context.Matches.Add(match);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetMatch", new { id = match.Id }, match);
-        }
-
-        // DELETE: api/Matches/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMatch(int id)
-        {
-            var match = await _context.Matches.FindAsync(id);
-            if (match == null)
-            {
+            var matchDto = await _service.GetById(id);
+            if (matchDto == null)
                 return NotFound();
-            }
-
-            _context.Matches.Remove(match);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(matchDto);
         }
 
-        private bool MatchExists(int id)
+
+        [HttpPost]
+        public async Task<ActionResult<MatchDto>> CreatePlayersFriendlyMatch(PlayersOnlyFriendlyMatchCreationDto? creationDto)
         {
-            return _context.Matches.Any(e => e.Id == id);
+			if (creationDto == null)
+				return BadRequest();
+			if (creationDto.Team1Dto == null || creationDto.Team2Dto == null)
+				return BadRequest();
+			if (creationDto.Team1Dto.PlayerIds.Count == 0 || creationDto.Team2Dto.PlayerIds.Count == 0)
+				return BadRequest();
+			var newMatch = await _service.Create(creationDto);
+            return CreatedAtRoute("GetMatch", new { id = newMatch.Id }, newMatch);
         }
     }
 }

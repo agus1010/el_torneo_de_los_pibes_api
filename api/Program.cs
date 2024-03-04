@@ -21,12 +21,14 @@ builder.Services.AddDbContext<ApplicationDBContext>();
 builder.Services.AddAutoMapper(typeof(PlayerMappingProfile));
 
 builder.Services.AddScoped<IBaseCRUDRepository<Player>, PlayersRepository>();
-builder.Services.AddScoped<PlayersRepository, PlayersRepository>();
+builder.Services.AddScoped<IPlayersRepository, PlayersRepository>();
 builder.Services.AddScoped<TeamsRepository, TeamsRepository>();
+builder.Services.AddScoped<MatchesRepository, MatchesRepository>();
 
 builder.Services.AddScoped<IPlayersService, PlayersService>();
 builder.Services.AddScoped<ITeamsService, TeamsService>();
-
+builder.Services.AddScoped<MatchesService, MatchesService>();
+builder.Services.AddScoped<ITournamentsService, TournamentsService>();
 
 
 var app = builder.Build();

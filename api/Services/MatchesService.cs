@@ -14,10 +14,10 @@ namespace api.Services
 	{
 		private readonly MatchesRepository _repo;
 		private readonly IMapper _mapper;
-		private readonly TeamsService _teamsService;
+		private readonly ITeamsService _teamsService;
 		private readonly ITournamentsService _turnamentsService;
 
-		public MatchesService(MatchesRepository repo, IMapper mapper, TeamsService teamsService, ITournamentsService tournamentsService)
+		public MatchesService(MatchesRepository repo, IMapper mapper, ITeamsService teamsService, ITournamentsService tournamentsService)
 		{
 			_repo = repo;
 			_mapper = mapper;
@@ -45,7 +45,15 @@ namespace api.Services
 
 		public async Task<MatchDto> Create(PlayersOnlyFriendlyMatchCreationDto matchCreationDto)
 		{
-			var match = await populateMatchEntity(matchCreationDto.Team1Dto, matchCreationDto.Team2Dto);
+			var team1 = _teamsService.Create(matchCreationDto.Team1Dto);
+			var team2 = _teamsService.Create(matchCreationDto.Team2Dto);
+
+			await Task.WhenAll(team1, team2);
+
+			var match = new Match();
+			match.Team1 = _mapper.Map<Team>(team1.Result);
+			match.Team2 = _mapper.Map<Team>(team2.Result);
+			
 			await _repo.Create(match);
 			return _mapper.Map<MatchDto>(match);
 		}

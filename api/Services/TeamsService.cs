@@ -5,6 +5,7 @@ using api.Models.Dtos.Team;
 using api.Models.Entities;
 using api.Services.Interfaces;
 using api.Repositories;
+using api.Repositories.Interfaces;
 
 
 namespace api.Services
@@ -12,9 +13,9 @@ namespace api.Services
 	public class TeamsService : BaseService<Team, TeamDto>, ITeamsService
 	{
 		protected readonly IPlayersService _playersService;
-		protected readonly PlayersRepository playersRepo;
+		protected readonly IPlayersRepository playersRepo;
 
-		public TeamsService(TeamsRepository teamsRepo, IPlayersService playersService, PlayersRepository playersRepo, IMapper mapper) : base(teamsRepo, mapper)
+		public TeamsService(TeamsRepository teamsRepo, IPlayersService playersService, IPlayersRepository playersRepo, IMapper mapper) : base(teamsRepo, mapper)
 		{
 			_playersService = playersService;
 			this.playersRepo = playersRepo;
