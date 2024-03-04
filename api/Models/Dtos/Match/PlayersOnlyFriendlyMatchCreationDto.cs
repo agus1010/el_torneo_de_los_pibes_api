@@ -3,7 +3,7 @@
 
 namespace api.Models.Dtos.Match
 {
-	public class FriendlyMatchCreationDto
+	public class PlayersOnlyFriendlyMatchCreationDto
 	{
 		public TeamCreationDto Team1Dto { get; set; } = new();
 		public TeamCreationDto Team2Dto { get; set; } = new();
