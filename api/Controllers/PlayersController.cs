@@ -1,86 +1,81 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using api.Models.Dtos.Player;
+using api.Services.Errors;
 using api.Services.Interfaces;
+
 
 
 namespace api.Controllers
 {
-	[Route("api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class PlayersController : ControllerBase
     {
-        private readonly IPlayersService _service;
+        protected readonly IPlayersService playersService;
 
-        public PlayersController(IPlayersService playerService)
+        public PlayersController(IPlayersService playersService)
         {
-            _service = playerService;
-        }
-
-        
-        [HttpGet]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		public async Task<ActionResult<IEnumerable<PlayerDto>>> Get()
-        {
-            return Ok(await _service.GetAll());
+            this.playersService = playersService;
         }
 
 
         [HttpGet("{id}")]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest)]
-		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public async Task<ActionResult<PlayerDto>> Get(int id)
+		public virtual async Task<ActionResult<PlayerDto>> GetPlayer(int id)
         {
             if (id <= 0)
                 return BadRequest();
             
-            var playerDto = await _service.GetById(id);
-
+            var playerDto = await playersService.GetAsync(id);
             if (playerDto == null)
                 return NotFound();
-
+            
             return Ok(playerDto);
         }
 
-
-		[HttpPost]
-		[ProducesResponseType(StatusCodes.Status201Created)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest)]
-		public async Task<ActionResult<PlayerDto>> Create(PlayerCreationDto playerCreationDto)
-		{
-			if (playerCreationDto == null)
-				return BadRequest();
-
-			var newPlayerDto = await _service.Create(playerCreationDto);
-
-			return CreatedAtAction("Get", new { id = newPlayerDto.Id }, newPlayerDto);
-		}
-
-
-		[HttpPut("{id}")]
-		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest)]
-		public async Task<IActionResult> Update(int id, PlayerDto playerDto)
+        // PUT: api/Players/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public virtual async Task<IActionResult> PutPlayer(int id, PlayerDto playerDto)
         {
-            if (id <= 0 || playerDto == null || id != playerDto.Id)
+            if (id <= 0 || playerDto == null || playerDto.Id <= 0 || id != playerDto.Id)
                 return BadRequest();
-
-            await _service.UpdateWith(playerDto);
-
+            try
+            {
+                await playersService.UpdateAsync(playerDto);
+            }
+            catch (EntityNotFoundException)
+            {
+                return NotFound();
+            }
             return NoContent();
         }
 
+        // POST: api/Players
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public virtual async Task<ActionResult<PlayerDto>> PostPlayer(PlayerCreationDto playerCreationDto)
+        {
+            if (playerCreationDto == null)
+                return BadRequest();
+            var newPlayerDto = await playersService.CreateAsync(playerCreationDto);
+            return CreatedAtAction("GetPlayer", new { id = newPlayerDto.Id }, newPlayerDto);
+        }
 
+        // DELETE: api/Players/5
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Delete(int id)
+        public virtual async Task<IActionResult> DeletePlayer(int id)
         {
             if (id <= 0)
                 return BadRequest();
-            
-            await _service.DeleteWithId(id);
+            try
+            {
+                await playersService.DeleteAsync(id);
+            }
+            catch (EntityNotFoundException)
+            {
+                return NotFound();
+            }
             return NoContent();
         }
     }

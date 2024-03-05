@@ -2,7 +2,7 @@
 {
 	public class PlayerCreationDto
 	{
-		public string Name {  get; set; }
-		public string ImageUrl { get; set; }
+		public string Name { get; set; } = "Player";
+		public string? ImageUrl { get; set; } = null;
 	}
 }

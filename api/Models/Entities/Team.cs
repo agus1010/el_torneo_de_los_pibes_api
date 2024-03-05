@@ -7,7 +7,7 @@ namespace api.Models.Entities
 	{
 		[Key]
 		public int Id { get; set; }
-		public string Name { get; set; } = string.Empty;
+		[Required] public string Name { get; set; } = "Team";
 
 		// navigation
 		public virtual ISet<Player> Players { get; set; } = new HashSet<Player>();

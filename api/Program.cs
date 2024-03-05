@@ -1,5 +1,4 @@
 using api.Data;
-using api.Models.Entities;
 using api.Profiles;
 using api.Repositories;
 using api.Repositories.Interfaces;
@@ -16,19 +15,15 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ApplicationDBContext>();
+builder.Services.AddDbContext<ApplicationDbContext>();
 
-builder.Services.AddAutoMapper(typeof(PlayerMappingProfile));
+builder.Services.AddAutoMapper(typeof(ApplicationMappingProfile));
 
-builder.Services.AddScoped<IBaseCRUDRepository<Player>, PlayersRepository>();
+
 builder.Services.AddScoped<IPlayersRepository, PlayersRepository>();
-builder.Services.AddScoped<TeamsRepository, TeamsRepository>();
-builder.Services.AddScoped<MatchesRepository, MatchesRepository>();
+
 
 builder.Services.AddScoped<IPlayersService, PlayersService>();
-builder.Services.AddScoped<ITeamsService, TeamsService>();
-builder.Services.AddScoped<MatchesService, MatchesService>();
-builder.Services.AddScoped<ITournamentsService, TournamentsService>();
 
 
 var app = builder.Build();

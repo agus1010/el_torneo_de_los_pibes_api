@@ -1,12 +1,13 @@
 ﻿using api.Models.Dtos.Player;
-using api.Services.Interfaces.Base;
-
 
 namespace api.Services.Interfaces
 {
-    public interface IPlayersService : IIdDependantService<PlayerDto, PlayerCreationDto>
-	{
-		public Task<PlayerDto> Create(PlayerCreationDto playerCreationDto);
-		public Task<IEnumerable<PlayerDto>> GetAll();
-	}
+    public interface IPlayersService
+    {
+        Task<PlayerDto> CreateAsync(PlayerCreationDto playerCreationDto);
+        Task DeleteAsync(int id);
+        Task<PlayerDto?> GetAsync(int id);
+        Task<IEnumerable<PlayerDto?>> GetAsync(ISet<int> ids);
+        Task UpdateAsync(PlayerDto playerDto);
+    }
 }

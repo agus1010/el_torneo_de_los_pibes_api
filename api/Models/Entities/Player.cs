@@ -7,10 +7,9 @@ namespace api.Models.Entities
 	{
 		[Key]
 		public int Id { get; set; }
-		[Required]
-		public string Name { get; set; } = string.Empty;
+		[Required] public string Name { get; set; } = "Player";
 		public string? ImageUrl { get; set; }
 
-		//public ICollection<Team>? Teams { get; set; }
+		public virtual ICollection<Team>? Teams { get; set; }
 	}
 }

@@ -9,9 +9,9 @@ using api.Models.Dtos.Tournament;
 
 namespace api.Profiles
 {
-    public class PlayerMappingProfile : Profile
+    public class ApplicationMappingProfile : Profile
     {
-        public PlayerMappingProfile()
+        public ApplicationMappingProfile()
         {
             CreateMap<Player, PlayerDto>().ReverseMap();
             CreateMap<Player, PlayerCreationDto>().ReverseMap();
