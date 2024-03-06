@@ -33,9 +33,18 @@ namespace api.Controllers
             return Ok(playerDto);
         }
 
-        // PUT: api/Players/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+
+		[HttpPost]
+		public virtual async Task<ActionResult<PlayerDto>> PostPlayer(PlayerCreationDto playerCreationDto)
+		{
+			if (playerCreationDto == null)
+				return BadRequest();
+			var newPlayerDto = await playersService.CreateAsync(playerCreationDto);
+			return CreatedAtAction("GetPlayer", new { id = newPlayerDto.Id }, newPlayerDto);
+		}
+
+
+		[HttpPut("{id}")]
         public virtual async Task<IActionResult> PutPlayer(int id, PlayerDto playerDto)
         {
             if (id <= 0 || playerDto == null || playerDto.Id <= 0 || id != playerDto.Id)
@@ -51,18 +60,7 @@ namespace api.Controllers
             return NoContent();
         }
 
-        // POST: api/Players
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public virtual async Task<ActionResult<PlayerDto>> PostPlayer(PlayerCreationDto playerCreationDto)
-        {
-            if (playerCreationDto == null)
-                return BadRequest();
-            var newPlayerDto = await playersService.CreateAsync(playerCreationDto);
-            return CreatedAtAction("GetPlayer", new { id = newPlayerDto.Id }, newPlayerDto);
-        }
 
-        // DELETE: api/Players/5
         [HttpDelete("{id}")]
         public virtual async Task<IActionResult> DeletePlayer(int id)
         {

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using api.Data;
-using api.Models.Entities;
+﻿using Microsoft.AspNetCore.Mvc;
+
+using api.Models.Dtos.Player;
+using api.Models.Dtos.Team;
+using api.Services.Interfaces;
+using api.Services.Errors;
+
+
 
 namespace api.Controllers
 {
@@ -14,95 +13,104 @@ namespace api.Controllers
     [ApiController]
     public class TeamsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        protected readonly ITeamsService teamsService;
 
-        public TeamsController(ApplicationDbContext context)
+        public TeamsController(ITeamsService teamsService)
         {
-            _context = context;
+            this.teamsService = teamsService;
         }
 
-        // GET: api/Teams
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Team>>> GetTeams()
+
+        [HttpPost]
+        public async virtual Task<ActionResult<TeamDto>> CreateTeam(TeamCreationDto teamCreationDto)
         {
-            return await _context.Teams.ToListAsync();
-        }
-
-        // GET: api/Teams/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Team>> GetTeam(int id)
-        {
-            var team = await _context.Teams.FindAsync(id);
-
-            if (team == null)
-            {
-                return NotFound();
-            }
-
-            return team;
-        }
-
-        // PUT: api/Teams/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutTeam(int id, Team team)
-        {
-            if (id != team.Id)
-            {
+            if (teamCreationDto == null)
                 return BadRequest();
-            }
+            var newTeamDto = await teamsService.CreateTeam(teamCreationDto);
+            return CreatedAtRoute("GetTeam", new { id = newTeamDto.Id }, newTeamDto);
+		}
 
-            _context.Entry(team).State = EntityState.Modified;
 
+		[HttpGet("{id}")]
+        public async virtual Task<ActionResult<TeamDto>> GetTeam(int id, bool includePlayers = false)
+        {
+            if (id <= 0)
+                return BadRequest();
+            var teamDto = await teamsService.GetTeam(id, includePlayers);
+            if (teamDto == null)
+                return NotFound();
+            return Ok(teamDto);
+        }
+
+
+        [HttpPut("{id}")]
+        public async virtual Task<ActionResult> EditTeam(int id, TeamUpdateDto teamUpdateDto)
+        {
+            if (id <= 0 || teamUpdateDto == null || teamUpdateDto.Id != id || teamUpdateDto.PlayersEdited == null)
+                return BadRequest();
             try
             {
-                await _context.SaveChangesAsync();
+                await teamsService.EditTeam(teamUpdateDto);
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TeamExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Teams
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Team>> PostTeam(Team team)
-        {
-            _context.Teams.Add(team);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetTeam", new { id = team.Id }, team);
-        }
-
-        // DELETE: api/Teams/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTeam(int id)
-        {
-            var team = await _context.Teams.FindAsync(id);
-            if (team == null)
+            catch (EntityNotFoundException)
             {
                 return NotFound();
             }
-
-            _context.Teams.Remove(team);
-            await _context.SaveChangesAsync();
-
             return NoContent();
         }
 
-        private bool TeamExists(int id)
+
+        [HttpDelete("{id}")]
+        public async virtual Task<ActionResult> DeleteTeam(int id)
         {
-            return _context.Teams.Any(e => e.Id == id);
+            if (id <= 0)
+                return BadRequest();
+            try
+            {
+                await teamsService.DeleteTeam(id);
+            }
+            catch (EntityNotFoundException)
+            {
+                return NotFound();
+            }
+            return NoContent();
         }
-    }
+
+
+
+        [HttpGet("{id}/players")]
+        public async virtual Task<ActionResult<ISet<PlayerDto>>> GetTeamPlayers(int id)
+        {
+            if (id <= 0)
+                return BadRequest();
+            ISet<PlayerDto> players;
+            try
+            {
+                players = await teamsService.GetPlayers(id);
+            }
+            catch (EntityNotFoundException)
+            {
+                return NotFound();
+            }
+            return Ok(players);
+        }
+        
+
+
+        [HttpPut("{teamId}/players")]
+        public async virtual Task<ActionResult> EditTeamPlayers(int teamId, [FromBody] TeamPlayersEditDto teamPlayersEditDto)
+        {
+            if (teamId <= 0 || teamPlayersEditDto == null)
+                return BadRequest();
+            try
+            {
+                await teamsService.EditPlayers(teamId, teamPlayersEditDto);
+            }
+            catch (EntityNotFoundException)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
+	}
 }

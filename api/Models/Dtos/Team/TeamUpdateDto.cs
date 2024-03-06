@@ -4,6 +4,6 @@
 	{
 		public int Id { get; set; }
 		public string Name { get; set; }
-		public ISet<int> PlayerIds { get; set; } = new HashSet<int>();
+		public TeamPlayersEditDto PlayersEdited { get; set; } = new TeamPlayersEditDto();
 	}
 }
