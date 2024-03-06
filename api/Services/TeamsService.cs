@@ -5,17 +5,18 @@ using api.Models.Dtos.Team;
 using api.Repositories.Interfaces;
 using api.Services.Interfaces;
 using api.Models.Entities;
+using api.Repositories;
 
 
 namespace api.Services
 {
     public class TeamsService : ITeamsService
 	{
-		protected readonly ITeamsRepository teamsRepo;
+		protected readonly TeamsRepository teamsRepo;
 		protected readonly IPlayersService playersService;
 		protected readonly IMapper mapper;
 
-        public TeamsService(ITeamsRepository teamsRepository, IPlayersService playersService, IMapper mapper)
+        public TeamsService(TeamsRepository teamsRepository, IPlayersService playersService, IMapper mapper)
         {
             teamsRepo = teamsRepository;
 			this.playersService = playersService;

@@ -1,12 +1,13 @@
 ﻿using api.Data;
 using api.Models.Entities;
 using api.Repositories.Interfaces;
+using api.Services.Errors;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace api.Repositories
 {
-    public class TeamsRepository : ITeamsRepository
+    public class TeamsRepository
 	{
 		protected readonly ApplicationDbContext context;
 
@@ -39,25 +40,23 @@ namespace api.Repositories
 			=> await AllTeams(includePlayers, track).FirstOrDefaultAsync(t => t.Id == id);
 
 
-		public async Task UpdateAsync(Team updatedTeam)
+
+		public async Task UpdateAsync(Team updatedTeamScalars, ISet<Player> removedPlayers, ISet<Player> addedPlayers)
 		{
-			throw new NotImplementedException();
+			Team? team = await GetAsync(updatedTeamScalars.Id, includePlayers: true);
+			if (team == null)
+				throw new EntityNotFoundException();
+			context.Teams.Update(updatedTeamScalars);
 		}
 
-
+		
 		public async Task DeleteAsync(int id)
 		{
 			throw new NotImplementedException();
 		}
 
 
-		public async Task EditTeamPlayers(Team team, IEnumerable<Player> playersRemoved, IEnumerable<Player> playersAdded)
-		{
-			throw new NotImplementedException();
-		}
-
-
-
+		
 		protected async Task Persist()
 			=> await context.SaveChangesAsync();
 	}
