@@ -22,17 +22,17 @@ namespace api.Controllers
 
 
         [HttpPost]
-        public async virtual Task<ActionResult<TeamDto>> CreateTeam(TeamCreationDto teamCreationDto)
+        public virtual async Task<ActionResult<TeamDto>> CreateTeam(TeamCreationDto teamCreationDto)
         {
             if (teamCreationDto == null)
                 return BadRequest();
             var newTeamDto = await teamsService.CreateTeam(teamCreationDto);
-            return CreatedAtRoute("GetTeam", new { id = newTeamDto.Id }, newTeamDto);
+            return CreatedAtAction("GetTeam", new { id = newTeamDto.Id }, newTeamDto);
 		}
 
 
 		[HttpGet("{id}")]
-        public async virtual Task<ActionResult<TeamDto>> GetTeam(int id, bool includePlayers = false)
+        public virtual async Task<ActionResult<TeamDto>> GetTeam(int id, bool includePlayers = false)
         {
             if (id <= 0)
                 return BadRequest();
@@ -44,7 +44,7 @@ namespace api.Controllers
 
 
         [HttpPut("{id}")]
-        public async virtual Task<ActionResult> EditTeam(int id, TeamUpdateDto teamUpdateDto)
+        public async virtual Task<ActionResult> EditTeam(int id, [FromBody] TeamUpdateDto teamUpdateDto)
         {
             if (id <= 0 || teamUpdateDto == null || teamUpdateDto.Id != id || teamUpdateDto.PlayersEdited == null)
                 return BadRequest();

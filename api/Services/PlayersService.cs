@@ -30,7 +30,7 @@ namespace api.Services
 			return playerDto;
 		}
 
-		public virtual async Task<IEnumerable<PlayerDto?>> GetAsync(ISet<int> ids)
+		public virtual async Task<IEnumerable<PlayerDto>> GetAsync(ISet<int> ids)
 		{
 			var players = await playersRepo.GetAsync(ids);
 			return players.Select(p => mapper.Map<PlayerDto>(p));

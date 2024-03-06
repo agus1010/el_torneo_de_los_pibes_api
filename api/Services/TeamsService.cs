@@ -4,6 +4,7 @@ using api.Models.Dtos.Player;
 using api.Models.Dtos.Team;
 using api.Repositories.Interfaces;
 using api.Services.Interfaces;
+using api.Models.Entities;
 
 
 namespace api.Services
@@ -25,13 +26,21 @@ namespace api.Services
 
         public async Task<TeamDto> CreateTeam(TeamCreationDto teamCreationDto)
 		{
-			throw new NotImplementedException();
+			var team = mapper.Map<Team>(teamCreationDto);
+			var playerDtos = await playersService.GetAsync(teamCreationDto.PlayerIds);
+			team.Players = mapper.Map<ISet<Player>>(playerDtos);
+			team = await teamsRepo.CreateAsync(team);
+			return mapper.Map<TeamDto>(team);
 		}
 
 
 		public async Task<TeamDto?> GetTeam(int id, bool includedPlayers)
 		{
-			throw new NotImplementedException();
+			var team = await teamsRepo.GetAsync(id, includedPlayers);
+			TeamDto? teamDto = null;
+			if (team != null)
+				teamDto = mapper.Map<TeamDto>(team);
+			return teamDto;
 		}
 
 
