@@ -67,74 +67,29 @@ namespace api.Repositories
 		}
 
 		
-		public async Task DeleteAsync(int id)
+		public async Task DeleteAsync(Team team)
 		{
-			throw new NotImplementedException();
-		}
-
-
-
-
-		/*public async Task AddPlayers(int teamId, ISet<int> playerIds)
-		{
-			var team = await _context.Teams
-				.Include(t => t.Players)
-				.FirstOrDefaultAsync(t => t.Id == teamId);
-
-			if (team == null)
-				throw new Exception();
-			if (team.Players == null)
-				team.Players = new HashSet<Player>();
-
-			foreach (var pId in playerIds)
-			{
-				var targetPlayer = await _context.Players.FirstOrDefaultAsync(p => p.Id == pId);
-				if (targetPlayer == null)
-					throw new Exception();
-				_context.Players.Add(targetPlayer);
-				_context.Players.Attach(targetPlayer);
-				team.Players.Add(targetPlayer);
-			}
+			context.Teams.Remove(team);
 			await Persist();
 		}
 
 
-
-		public async Task RemovePlayers(int teamId, ISet<int> playerIds)
+		public async Task AddPlayers(Team team, ISet<Player> addedPlayers)
 		{
-			var team = await context.Teams
-				.Include(t => t.Players)
-				.FirstOrDefaultAsync(t => t.Id == teamId);
-
-			if (team == null)
-				throw new Exception();
-			if (team.Players == null)
-				team.Players = new HashSet<Player>();
-			if (team.Players.Count == 0)
-				throw new Exception();
-
-			var playersToRemove = team.Players
-				.Select(p => p.Id)
-				.Intersect(playerIds)
-				.Zip(
-					team.Players,
-					(id, p) => p.Id == id ? p : throw new Exception()
-				)
-				.Where(p => p != null)
-				.ToList();
-
-			foreach (var player in playersToRemove)
-			{
-				context.Players.Add(player!);
-				context.Players.Attach(player!);
-				team.Players.Remove(player!);
-			}
-
+			var trackedTeam = (await context.Teams.FindAsync(team.Id))!;
+			foreach (var player in addedPlayers)
+				trackedTeam.Players.Add(player);
 			await Persist();
-		}*/
+        }
 
 
-
+		public async Task RemovePlayers(Team team, ISet<Player> removedPlayers)
+		{
+			var trackedTeam = (await context.Teams.FindAsync(team.Id))!;
+			foreach (var player in removedPlayers)
+				trackedTeam.Players.Remove(player);
+			await Persist();
+		}
 
 
 		protected async Task Persist()

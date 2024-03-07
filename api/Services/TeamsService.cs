@@ -55,20 +55,29 @@ namespace api.Services
 
 		public async Task DeleteTeam(int id)
 		{
-			throw new NotImplementedException();
+			var team = await teamsRepo.GetAsync(id, false, true);
+			if (team == null)
+				throw new EntityNotFoundException();
+			await teamsRepo.DeleteAsync(team);
 		}
 
 
 
 		public async Task<ISet<PlayerDto>> GetPlayers(int teamId)
 		{
-			throw new NotImplementedException();
+			var team = await teamsRepo.GetAsync(teamId, true, false);
+			if (team == null)
+				throw new EntityNotFoundException();
+			return mapper.Map<ISet<PlayerDto>>(team.Players);
 		}
 
 
 		public async Task EditPlayers(int teamId, TeamPlayersEditDto teamPlayersEditDto)
 		{
-			throw new NotImplementedException();
+			var team = await teamsRepo.GetAsync(teamId, true, false);
+			if (team == null)
+				throw new EntityNotFoundException();
+			
 		}
 	}
 }
