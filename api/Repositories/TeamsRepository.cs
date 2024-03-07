@@ -3,6 +3,7 @@ using api.Models.Entities;
 using api.Repositories.Interfaces;
 using api.Services.Errors;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 
 namespace api.Repositories
@@ -40,13 +41,29 @@ namespace api.Repositories
 			=> await AllTeams(includePlayers, track).FirstOrDefaultAsync(t => t.Id == id);
 
 
-
-		public async Task UpdateAsync(Team updatedTeamScalars, ISet<Player> removedPlayers, ISet<Player> addedPlayers)
+		// https://learn.microsoft.com/en-us/ef/core/change-tracking/relationship-changes
+		// https://learn.microsoft.com/en-us/ef/core/change-tracking/
+		// https://learn.microsoft.com/en-us/ef/core/change-tracking/identity-resolution
+		public async Task UpdateAsync(Team updatedTeam)
 		{
-			Team? team = await GetAsync(updatedTeamScalars.Id, includePlayers: true);
-			if (team == null)
-				throw new EntityNotFoundException();
-			context.Teams.Update(updatedTeamScalars);
+			var trackedTeam = await AllTeams(includePlayers: true, track: true).FirstAsync(t => t.Id == updatedTeam.Id);
+			var originalPlayers = trackedTeam.Players.Select(p => p!);
+			
+			context.Entry(trackedTeam!).CurrentValues.SetValues(updatedTeam);
+
+			var ignoredPlayers = originalPlayers.IntersectBy(updatedTeam.Players.Select(p => p.Id), p => p.Id);
+			foreach (var player in ignoredPlayers)
+				context.Entry(player).State = EntityState.Detached;
+
+			var removedPlayers = originalPlayers.ExceptBy(ignoredPlayers.Select(p => p.Id), p => p.Id);
+			foreach (var player in removedPlayers)
+				trackedTeam.Players.Remove(player);
+
+			var addedPlayers = updatedTeam.Players.ExceptBy(ignoredPlayers.Select(p => p.Id), p => p.Id).ToList();
+			foreach (var player in addedPlayers)
+				trackedTeam.Players.Add(player);
+
+			await Persist();
 		}
 
 		
@@ -56,7 +73,70 @@ namespace api.Repositories
 		}
 
 
-		
+
+
+		/*public async Task AddPlayers(int teamId, ISet<int> playerIds)
+		{
+			var team = await _context.Teams
+				.Include(t => t.Players)
+				.FirstOrDefaultAsync(t => t.Id == teamId);
+
+			if (team == null)
+				throw new Exception();
+			if (team.Players == null)
+				team.Players = new HashSet<Player>();
+
+			foreach (var pId in playerIds)
+			{
+				var targetPlayer = await _context.Players.FirstOrDefaultAsync(p => p.Id == pId);
+				if (targetPlayer == null)
+					throw new Exception();
+				_context.Players.Add(targetPlayer);
+				_context.Players.Attach(targetPlayer);
+				team.Players.Add(targetPlayer);
+			}
+			await Persist();
+		}
+
+
+
+		public async Task RemovePlayers(int teamId, ISet<int> playerIds)
+		{
+			var team = await context.Teams
+				.Include(t => t.Players)
+				.FirstOrDefaultAsync(t => t.Id == teamId);
+
+			if (team == null)
+				throw new Exception();
+			if (team.Players == null)
+				team.Players = new HashSet<Player>();
+			if (team.Players.Count == 0)
+				throw new Exception();
+
+			var playersToRemove = team.Players
+				.Select(p => p.Id)
+				.Intersect(playerIds)
+				.Zip(
+					team.Players,
+					(id, p) => p.Id == id ? p : throw new Exception()
+				)
+				.Where(p => p != null)
+				.ToList();
+
+			foreach (var player in playersToRemove)
+			{
+				context.Players.Add(player!);
+				context.Players.Attach(player!);
+				team.Players.Remove(player!);
+			}
+
+			await Persist();
+		}*/
+
+
+
+
+
 		protected async Task Persist()
 			=> await context.SaveChangesAsync();
 	}

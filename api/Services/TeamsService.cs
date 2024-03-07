@@ -2,10 +2,10 @@
 
 using api.Models.Dtos.Player;
 using api.Models.Dtos.Team;
-using api.Repositories.Interfaces;
 using api.Services.Interfaces;
 using api.Models.Entities;
 using api.Repositories;
+using api.Services.Errors;
 
 
 namespace api.Services
@@ -47,7 +47,9 @@ namespace api.Services
 
 		public async Task EditTeam(TeamUpdateDto teamUpdateDto)
 		{
-			throw new NotImplementedException();
+			var team = mapper.Map<Team>(teamUpdateDto);
+			team.Players = mapper.Map<ISet<Player>>(await playersService.GetAsync(teamUpdateDto.PlayerIds));
+			await teamsRepo.UpdateAsync(team);
 		}
 
 

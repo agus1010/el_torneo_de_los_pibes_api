@@ -27,6 +27,7 @@ namespace api.Data
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			optionsBuilder.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
+			optionsBuilder.EnableSensitiveDataLogging(true);
 			base.OnConfiguring(optionsBuilder);
 		}
 	}

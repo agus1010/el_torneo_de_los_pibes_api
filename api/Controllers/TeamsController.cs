@@ -46,7 +46,7 @@ namespace api.Controllers
         [HttpPut("{id}")]
         public async virtual Task<ActionResult> EditTeam(int id, [FromBody] TeamUpdateDto teamUpdateDto)
         {
-            if (id <= 0 || teamUpdateDto == null || teamUpdateDto.Id != id || teamUpdateDto.PlayersEdited == null)
+            if (id <= 0 || teamUpdateDto == null || teamUpdateDto.Id != id || teamUpdateDto.PlayerIds == null)
                 return BadRequest();
             try
             {
