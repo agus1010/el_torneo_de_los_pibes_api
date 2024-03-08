@@ -74,7 +74,7 @@ namespace api.Repositories
 
 		public async Task AddPlayers(Team team, ISet<Player> addedPlayers)
 		{
-			var trackedTeam = (await context.Teams.FindAsync(team.Id))!;
+			var trackedTeam = await AllTeams(includePlayers: true, track: true).FirstAsync(t => t.Id == team.Id);
 			foreach (var player in addedPlayers)
 				trackedTeam.Players.Add(player);
 			await Persist();
@@ -83,7 +83,7 @@ namespace api.Repositories
 
 		public async Task RemovePlayers(Team team, ISet<Player> removedPlayers)
 		{
-			var trackedTeam = (await context.Teams.FindAsync(team.Id))!;
+			var trackedTeam = await AllTeams(includePlayers: true, track: true).FirstAsync(t => t.Id == team.Id);
 			foreach (var player in removedPlayers)
 				trackedTeam.Players.Remove(player);
 			await Persist();
