@@ -20,7 +20,17 @@ namespace api.Controllers
         }
 
 
-        [HttpGet("{id}")]
+		[HttpPost]
+		public virtual async Task<ActionResult<PlayerDto>> CreatePlayer(PlayerCreationDto playerCreationDto)
+		{
+			if (playerCreationDto == null)
+				return BadRequest();
+			var newPlayerDto = await playersService.CreateAsync(playerCreationDto);
+			return CreatedAtAction("GetPlayer", new { id = newPlayerDto.Id }, newPlayerDto);
+		}
+
+
+		[HttpGet("{id}")]
 		public virtual async Task<ActionResult<PlayerDto>> GetPlayer(int id)
         {
             if (id <= 0)
@@ -34,18 +44,8 @@ namespace api.Controllers
         }
 
 
-		[HttpPost]
-		public virtual async Task<ActionResult<PlayerDto>> PostPlayer(PlayerCreationDto playerCreationDto)
-		{
-			if (playerCreationDto == null)
-				return BadRequest();
-			var newPlayerDto = await playersService.CreateAsync(playerCreationDto);
-			return CreatedAtAction("GetPlayer", new { id = newPlayerDto.Id }, newPlayerDto);
-		}
-
-
 		[HttpPut("{id}")]
-        public virtual async Task<IActionResult> PutPlayer(int id, PlayerDto playerDto)
+        public virtual async Task<IActionResult> EditPlayer(int id, PlayerDto playerDto)
         {
             if (id <= 0 || playerDto == null || playerDto.Id <= 0 || id != playerDto.Id)
                 return BadRequest();

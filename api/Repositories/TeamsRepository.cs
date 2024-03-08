@@ -1,9 +1,7 @@
-﻿using api.Data;
+﻿using Microsoft.EntityFrameworkCore;
+
+using api.Data;
 using api.Models.Entities;
-using api.Repositories.Interfaces;
-using api.Services.Errors;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 
 namespace api.Repositories
