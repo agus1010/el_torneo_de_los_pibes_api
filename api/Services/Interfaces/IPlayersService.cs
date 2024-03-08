@@ -7,7 +7,7 @@ namespace api.Services.Interfaces
         Task<PlayerDto> CreateAsync(PlayerCreationDto playerCreationDto);
         Task DeleteAsync(int id);
         Task<PlayerDto?> GetAsync(int id);
-        Task<IEnumerable<PlayerDto>> GetAsync(ISet<int> ids);
+        Task<IEnumerable<PlayerDto>> GetAsync(IEnumerable<int> ids);
         Task UpdateAsync(PlayerDto playerDto);
     }
 }

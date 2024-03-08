@@ -110,6 +110,10 @@ namespace api.Controllers
             {
                 return NotFound();
             }
+            catch (InvalidOperationException)
+            {
+                return BadRequest();
+            }
             return NoContent();
         }
 	}

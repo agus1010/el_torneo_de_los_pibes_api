@@ -74,10 +74,32 @@ namespace api.Services
 
 		public async Task EditPlayers(int teamId, TeamPlayersEditDto teamPlayersEditDto)
 		{
+			// chequear que el equipo existe
 			var team = await teamsRepo.GetAsync(teamId, true, false);
 			if (team == null)
 				throw new EntityNotFoundException();
-			
+
+			int playersAddedCount = teamPlayersEditDto.PlayersAdded.Count;
+			int playersRemovedCount = teamPlayersEditDto.PlayersRemoved.Count;
+
+			// chequear si hay ids repetidos entre removed y added
+			IEnumerable<int> allIds = teamPlayersEditDto.PlayersRemoved.Union(teamPlayersEditDto.PlayersAdded);
+			int necesaryIdsCount = playersAddedCount + playersRemovedCount;
+			if (allIds.Count() < necesaryIdsCount)
+				throw new InvalidOperationException();
+
+			// chequear si hay ids que no corresponden a players
+			var allPlayerDtos = await playersService.GetAsync(allIds);
+			if (allPlayerDtos.Count() < necesaryIdsCount)
+				throw new InvalidOperationException();
+
+			var allPlayers = mapper.Map<IEnumerable<Player>>(allPlayerDtos);
+
+
+			var addedPlayers = allPlayers.Where(p => teamPlayersEditDto.PlayersAdded.Contains(p.Id)).ToHashSet();
+			var removedPlayers = allPlayers.Where(p => teamPlayersEditDto.PlayersRemoved.Contains(p.Id)).ToHashSet();
+
+			await teamsRepo.EditPlayers(team, addedPlayers, removedPlayers);
 		}
 	}
 }
