@@ -22,7 +22,9 @@ namespace api.Controllers
 
 
         [HttpPost]
-        public virtual async Task<ActionResult<TeamDto>> CreateTeam(TeamCreationDto teamCreationDto)
+		[ProducesResponseType(StatusCodes.Status201Created)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public virtual async Task<ActionResult<TeamDto>> CreateTeam(TeamCreationDto teamCreationDto)
         {
             if (teamCreationDto == null)
                 return BadRequest();
@@ -32,7 +34,10 @@ namespace api.Controllers
 
 
 		[HttpGet("{id}")]
-        public virtual async Task<ActionResult<TeamDto>> GetTeam(int id, bool includePlayers = false)
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public virtual async Task<ActionResult<TeamDto>> GetTeam(int id, bool includePlayers = false)
         {
             if (id <= 0)
                 return BadRequest();
@@ -44,7 +49,10 @@ namespace api.Controllers
 
 
         [HttpPut("{id}")]
-        public async virtual Task<ActionResult> EditTeam(int id, [FromBody] TeamUpdateDto teamUpdateDto)
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async virtual Task<ActionResult> EditTeam(int id, [FromBody] TeamUpdateDto teamUpdateDto)
         {
             if (id <= 0 || teamUpdateDto == null || teamUpdateDto.Id != id || teamUpdateDto.PlayerIds == null)
                 return BadRequest();
@@ -61,7 +69,10 @@ namespace api.Controllers
 
 
         [HttpDelete("{id}")]
-        public async virtual Task<ActionResult> DeleteTeam(int id)
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async virtual Task<ActionResult> DeleteTeam(int id)
         {
             if (id <= 0)
                 return BadRequest();
@@ -79,7 +90,10 @@ namespace api.Controllers
 
 
         [HttpGet("{id}/players")]
-        public async virtual Task<ActionResult<ISet<PlayerDto>>> GetTeamPlayers(int id)
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async virtual Task<ActionResult<ISet<PlayerDto>>> GetTeamPlayers(int id)
         {
             if (id <= 0)
                 return BadRequest();
@@ -98,7 +112,10 @@ namespace api.Controllers
 
 
         [HttpPut("{teamId}/players")]
-        public async virtual Task<ActionResult> EditTeamPlayers(int teamId, [FromBody] TeamPlayersEditDto teamPlayersEditDto)
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async virtual Task<ActionResult> EditTeamPlayers(int teamId, [FromBody] TeamPlayersEditDto teamPlayersEditDto)
         {
             if (teamId <= 0 || teamPlayersEditDto == null)
                 return BadRequest();

@@ -20,6 +20,8 @@ namespace api.Controllers
 
 
 		[HttpPost]
+		[ProducesResponseType(StatusCodes.Status201Created)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public virtual async Task<ActionResult<PlayerDto>> CreatePlayer(PlayerCreationDto playerCreationDto)
 		{
 			if (playerCreationDto == null)
@@ -30,6 +32,9 @@ namespace api.Controllers
 
 
 		[HttpGet("{id}")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public virtual async Task<ActionResult<PlayerDto>> GetPlayer(int id)
         {
             if (id <= 0)
@@ -44,7 +49,10 @@ namespace api.Controllers
 
 
 		[HttpPut("{id}")]
-        public virtual async Task<IActionResult> EditPlayer(int id, PlayerDto playerDto)
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public virtual async Task<IActionResult> EditPlayer(int id, PlayerDto playerDto)
         {
             if (id <= 0 || playerDto == null || playerDto.Id <= 0 || id != playerDto.Id)
                 return BadRequest();
@@ -61,7 +69,10 @@ namespace api.Controllers
 
 
         [HttpDelete("{id}")]
-        public virtual async Task<IActionResult> DeletePlayer(int id)
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public virtual async Task<IActionResult> DeletePlayer(int id)
         {
             if (id <= 0)
                 return BadRequest();
