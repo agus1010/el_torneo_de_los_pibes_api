@@ -2,21 +2,21 @@
 
 using api.Models.Dtos.Player;
 using api.Models.Dtos.Team;
-using api.Services.Interfaces;
 using api.Models.Entities;
-using api.Repositories;
+using api.Repositories.Interfaces;
 using api.Services.Errors;
+using api.Services.Interfaces;
 
 
 namespace api.Services
 {
     public class TeamsService : ITeamsService
 	{
-		protected readonly TeamsRepository teamsRepo;
+		protected readonly ITeamsRepository teamsRepo;
 		protected readonly IPlayersService playersService;
 		protected readonly IMapper mapper;
 
-        public TeamsService(TeamsRepository teamsRepository, IPlayersService playersService, IMapper mapper)
+        public TeamsService(ITeamsRepository teamsRepository, IPlayersService playersService, IMapper mapper)
         {
             teamsRepo = teamsRepository;
 			this.playersService = playersService;

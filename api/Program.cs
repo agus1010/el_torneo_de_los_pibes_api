@@ -21,7 +21,7 @@ builder.Services.AddAutoMapper(typeof(ApplicationMappingProfile));
 
 
 builder.Services.AddScoped<IPlayersRepository, PlayersRepository>();
-builder.Services.AddScoped<TeamsRepository, TeamsRepository>();
+builder.Services.AddScoped<ITeamsRepository, TeamsRepository>();
 
 
 builder.Services.AddScoped<IPlayersService, PlayersService>();

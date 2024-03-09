@@ -2,20 +2,17 @@
 
 using api.Data;
 using api.Models.Entities;
-using NuGet.Packaging;
+using api.Repositories.Interfaces;
 
 
 namespace api.Repositories
 {
-    public class TeamsRepository
+    public class TeamsRepository : ITeamsRepository
 	{
 		protected readonly ApplicationDbContext context;
 
 		public TeamsRepository(ApplicationDbContext context)
 			=> this.context = context;
-
-
-		
 
 
 		public async Task<Team> CreateAsync(Team team)
@@ -39,25 +36,20 @@ namespace api.Repositories
 		{
 			var trackedTeam = (await GetAsync(updatedTeam.Id, true, true))!;
 			var originalPlayers = trackedTeam.Players.Select(p => p!);
-			
+
 			context.Entry(trackedTeam!).CurrentValues.SetValues(updatedTeam);
 
-			var ignoredPlayers = originalPlayers.IntersectBy(updatedTeam.Players.Select(p => p.Id), p => p.Id);
+			var ignoredPlayers = playersSetIntersection(originalPlayers, updatedTeam.Players);
 			foreach (var player in ignoredPlayers)
 				context.Entry(player).State = EntityState.Detached;
 
-			var removedPlayers = originalPlayers.ExceptBy(ignoredPlayers.Select(p => p.Id), p => p.Id);
-			foreach (var player in removedPlayers)
-				trackedTeam.Players.Remove(player);
-
-			var addedPlayers = updatedTeam.Players.ExceptBy(ignoredPlayers.Select(p => p.Id), p => p.Id).ToList();
-			foreach (var player in addedPlayers)
-				trackedTeam.Players.Add(player);
+			removePlayers(trackedTeam, playersSetDifference(originalPlayers, ignoredPlayers));
+			addPlayers(trackedTeam, playersSetDifference(updatedTeam.Players, ignoredPlayers));
 
 			await Persist();
 		}
 
-		
+
 		public async Task DeleteAsync(Team team)
 		{
 			context.Teams.Remove(team);
@@ -68,14 +60,8 @@ namespace api.Repositories
 		public async Task EditPlayers(Team team, ISet<Player> addedPlayers, ISet<Player> removedPlayers)
 		{
 			var trackedTeam = (await GetAsync(team.Id, true, true))!;
-
-			foreach (var player in addedPlayers)
-				trackedTeam.Players.Add(player);
-
-			var tracekdPlayersRemoved = trackedTeam.Players.Where(p => removedPlayers.Select(p => p.Id).Contains(p.Id));
-			foreach (var referencedPlayer in tracekdPlayersRemoved)
-				trackedTeam.Players.Remove(referencedPlayer);
-			
+			addPlayers(trackedTeam, addedPlayers);
+			removePlayers(trackedTeam, removedPlayers);
 			await Persist();
 		}
 
@@ -83,17 +69,15 @@ namespace api.Repositories
 		public async Task AddPlayers(Team team, ISet<Player> addedPlayers)
 		{
 			var trackedTeam = (await GetAsync(team.Id, true, true))!;
-			foreach (var player in addedPlayers)
-				trackedTeam.Players.Add(player);
+			addPlayers(team, addedPlayers);
 			await Persist();
-        }
+		}
 
 
 		public async Task RemovePlayers(Team team, ISet<Player> removedPlayers)
 		{
 			var trackedTeam = (await GetAsync(team.Id, true, true))!;
-			foreach (var player in removedPlayers)
-				trackedTeam.Players.Remove(player);
+			removePlayers(team, removedPlayers);
 			await Persist();
 		}
 
@@ -115,13 +99,23 @@ namespace api.Repositories
 
 
 		protected void addPlayers(Team team, IEnumerable<Player> playersToAdd)
-			=> team.Players.AddRange(playersToAdd);
+		{
+			foreach (var player in playersToAdd)
+				team.Players.Add(player);
+		}
 
 
 		protected void removePlayers(Team team, IEnumerable<Player> playersToRemove)
 		{
-			foreach (var player in team.Players.IntersectBy(playersToRemove.Select(p => p.Id), t => t.Id))
+			foreach (var player in playersSetIntersection(team.Players, playersToRemove))
 				team.Players.Remove(player);
 		}
+
+
+		public IEnumerable<Player> playersSetIntersection(IEnumerable<Player> set1, IEnumerable<Player> set2)
+			=> set1.IntersectBy(set2.Select(p => p.Id), t => t.Id);
+
+		public IEnumerable<Player> playersSetDifference(IEnumerable<Player> set1, IEnumerable<Player> set2)
+			=> set1.ExceptBy(set2.Select(p => p.Id), p => p.Id);
 	}
 }
