@@ -1,6 +1,8 @@
-﻿using api.Models.Dtos.Match;
+﻿using AutoMapper;
+
+using api.Models.Dtos.Match;
 using api.Repositories;
-using AutoMapper;
+
 
 namespace api.Services
 {
