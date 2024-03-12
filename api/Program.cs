@@ -20,12 +20,16 @@ builder.Services.AddDbContext<ApplicationDbContext>();
 builder.Services.AddAutoMapper(typeof(ApplicationMappingProfile));
 
 
+
 builder.Services.AddScoped<IPlayersRepository, PlayersRepository>();
 builder.Services.AddScoped<ITeamsRepository, TeamsRepository>();
+builder.Services.AddScoped<MatchesRepository, MatchesRepository>();
+
 
 
 builder.Services.AddScoped<IPlayersService, PlayersService>();
 builder.Services.AddScoped<ITeamsService, TeamsService>();
+builder.Services.AddScoped<MatchesService, MatchesService>();
 
 
 

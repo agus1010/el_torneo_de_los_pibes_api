@@ -1,4 +1,6 @@
-﻿using api.Data;
+﻿using Microsoft.EntityFrameworkCore;
+
+using api.Data;
 using api.Models.Entities;
 
 
@@ -13,9 +15,13 @@ namespace api.Repositories
 		}
 
 
-		public async Task<Match> CreateAsync(Match match)
+		public async Task<Match> CreateAsync(Match match, bool track = false)
 		{
-			throw new NotImplementedException();
+			var newMatchEntity = await context.Matches.AddAsync(match);
+			await Persist();
+			if (!track)
+				context.Entry(newMatchEntity).State = EntityState.Detached;
+			return match;
 		}
 
 
@@ -41,5 +47,10 @@ namespace api.Repositories
 		{
 			throw new NotImplementedException();
 		}
+
+
+
+		protected async Task Persist()
+			=> await context.SaveChangesAsync();
 	}
 }

@@ -25,7 +25,7 @@ namespace api.Controllers
         {
             if (matchCreationDto.Team1Dto == null || matchCreationDto.Team2Dto == null)
                 return BadRequest();
-            var createdMatch = await _matchesService.CreateAsync(matchCreationDto);
+            var createdMatch = await _matchesService.CreateMatch(matchCreationDto);
             return CreatedAtAction("GetMatch", new { id = createdMatch.Id }, createdMatch);
         }
 
@@ -65,7 +65,7 @@ namespace api.Controllers
 		}
 
 
-		[HttpPut("{id}")]
+		[HttpDelete("{id}")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]

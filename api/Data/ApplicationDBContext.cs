@@ -1,5 +1,6 @@
-﻿using api.Models.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
+using api.Models.Entities;
 
 
 // https://learn.microsoft.com/en-us/ef/core/modeling/relationships/many-to-many

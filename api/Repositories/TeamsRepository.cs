@@ -15,11 +15,15 @@ namespace api.Repositories
 			=> this.context = context;
 
 
-		public async Task<Team> CreateAsync(Team team)
+		public async Task<Team> CreateAsync(Team team, bool track = false)
 		{
-			await context.Players.AddRangeAsync(team.Players);
-			context.Players.AttachRange(team.Players);
-			await context.Teams.AddAsync(team);
+			foreach (var player in team.Players)
+				context.Entry(player).State = EntityState.Detached;
+			// await context.Players.AddRangeAsync(team.Players);
+			// context.Players.AttachRange(team.Players);
+			var newTeamEntry = await context.Teams.AddAsync(team);
+            if (!track)
+				newTeamEntry.State = EntityState.Detached;
 			await Persist();
 			return team;
 		}
