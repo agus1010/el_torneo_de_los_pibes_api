@@ -10,6 +10,6 @@ namespace api.Models.Entities
 		[Required] public string Name { get; set; } = "Player";
 		public string? ImageUrl { get; set; }
 
-		public virtual ICollection<Team>? Teams { get; set; }
+		public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
 	}
 }

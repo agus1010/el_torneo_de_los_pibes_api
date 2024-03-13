@@ -55,7 +55,7 @@ namespace api.Services
 
 		public async Task DeleteTeam(int id)
 		{
-			var team = await teamsRepo.GetAsync(id, false, true);
+			var team = await teamsRepo.GetAsync(id, includePlayers: false);
 			if (team == null)
 				throw new EntityNotFoundException();
 			await teamsRepo.DeleteAsync(team);
@@ -65,7 +65,7 @@ namespace api.Services
 
 		public async Task<ISet<PlayerDto>> GetPlayers(int teamId)
 		{
-			var team = await teamsRepo.GetAsync(teamId, true, false);
+			var team = await teamsRepo.GetAsync(teamId);
 			if (team == null)
 				throw new EntityNotFoundException();
 			return mapper.Map<ISet<PlayerDto>>(team.Players);
@@ -75,7 +75,7 @@ namespace api.Services
 		public async Task EditPlayers(int teamId, TeamPlayersEditDto teamPlayersEditDto)
 		{
 			// chequear que el equipo existe
-			var team = await teamsRepo.GetAsync(teamId, true, false);
+			var team = await teamsRepo.GetAsync(teamId);
 			if (team == null)
 				throw new EntityNotFoundException();
 

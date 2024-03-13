@@ -15,7 +15,8 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ApplicationDbContext>();
+//builder.Services.AddDbContext<ApplicationDbContext>();
+builder.Services.AddDbContextFactory<ApplicationDbContext>();
 
 builder.Services.AddAutoMapper(typeof(ApplicationMappingProfile));
 

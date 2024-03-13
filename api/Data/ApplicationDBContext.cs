@@ -6,7 +6,7 @@ using api.Models.Entities;
 // https://learn.microsoft.com/en-us/ef/core/modeling/relationships/many-to-many
 namespace api.Data
 {
-	public class ApplicationDbContext : DbContext
+	public class ApplicationDbContext : DbContext, IDisposable
 	{
 		public DbSet<Player> Players { get; set; }
 		public DbSet<Team> Teams { get; set; }
@@ -30,6 +30,20 @@ namespace api.Data
 			optionsBuilder.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
 			optionsBuilder.EnableSensitiveDataLogging(true);
 			base.OnConfiguring(optionsBuilder);
+		}
+
+
+		public override void Dispose()
+		{
+			SaveChanges();
+			base.Dispose();
+		}
+
+
+		public override ValueTask DisposeAsync()
+		{
+			Task.WhenAny(SaveChangesAsync());
+			return base.DisposeAsync();
 		}
 	}
 }
