@@ -13,19 +13,47 @@ namespace api.Services
 	{
 		protected readonly MatchesRepository matchesRepository;
 		protected readonly ITeamsService teamsService;
+		protected readonly IPlayersService playersService;
 		protected readonly IMapper mapper;
 
-		public MatchesService(MatchesRepository matchesRepository, ITeamsService teamsService, IMapper mapper)
+		public MatchesService(MatchesRepository matchesRepository, ITeamsService teamsService, IPlayersService playersService, IMapper mapper)
 		{
 			this.matchesRepository = matchesRepository;
 			this.teamsService = teamsService;
+			this.playersService = playersService;
 			this.mapper = mapper;
 		}
 
+
 		public async Task<MatchDto> CreateMatch(PlayersOnlyFriendlyMatchCreationDto matchCreationDto)
+		{
+			var team1 = new Team()
+			{
+				Name = string.IsNullOrEmpty(matchCreationDto.Team1Dto.Name) ? "Equipo 1" : matchCreationDto.Team1Dto.Name,
+				Players = mapper.Map<ISet<Player>>(await playersService.GetAsync(matchCreationDto.Team1Dto.PlayerIds))
+			};
+			var team2 = new Team()
+			{
+				Name = string.IsNullOrEmpty(matchCreationDto.Team2Dto.Name) ? "Equipo 2" : matchCreationDto.Team2Dto.Name,
+				Players = mapper.Map<ISet<Player>>(await playersService.GetAsync(matchCreationDto.Team2Dto.PlayerIds))
+			};
+			var match = new Match()
+			{
+				Team1 = team1,
+				Team2 = team2,
+				Tournament = null
+			};
+			match = await matchesRepository.CreateAsync(match);
+			return mapper.Map<MatchDto>(match);
+		}
+
+
+		/*public async Task<MatchDto> CreateMatch(PlayersOnlyFriendlyMatchCreationDto matchCreationDto)
 		{
 			var team1 = await teamsService.CreateTeam(matchCreationDto.Team1Dto);
 			var team2 = await teamsService.CreateTeam(matchCreationDto.Team2Dto);
+			team1.Players.Clear();
+			team2.Players.Clear();
 			var match = new Match()
 			{
 				Team1 = mapper.Map<Team>(team1),
@@ -34,7 +62,7 @@ namespace api.Services
 			};
 			match = await matchesRepository.CreateAsync(match);
 			return mapper.Map<MatchDto>(match);
-		}
+		}*/
 
 		
 		public async Task<MatchDto?> GetAsync(int id)

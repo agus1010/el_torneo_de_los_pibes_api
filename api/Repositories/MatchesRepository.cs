@@ -27,20 +27,40 @@ namespace api.Repositories
 		}
 
 		 
-		public async Task<Match> CreateAsync(Match match, bool track = false)
+		public async Task<Match> CreateAsync(Match match)
 		{
 			using (var context = await contextFactory.CreateDbContextAsync())
+			{
+				/*var team1 = new Team()
+				{
+					Name = match.Team1.Name;
+				}
+				var team1 = (await context.Teams.AddAsync(match.Team1)).Entity;
+				var team2 = (await context.Teams.AddAsync(match.Team2)).Entity;
+				
+
+
+				var players = team1.Players.Union(team2.Players);
+				await context.Players.AddRangeAsync(players);
+				context.Players.AttachRange(players);
+				
+				match.Team1 = team1;
+				match.Team2 = team2;*/
+
 				await context.Matches.AddAsync(match);
-			//var newMatchEntity = await context.Matches.AddAsync(match);
-			//await Persist();
-			//if (!track)
-			//	context.Entry(newMatchEntity).State = EntityState.Detached;
+			}
 			return match;
 		}
 
 
 		public async Task<Match?> GetAsync(int id)
-			=> await allMatches.FirstOrDefaultAsync(m => m.Id == id);
+			=> await allMatches
+				.Include(m => m.Team1)
+					.ThenInclude(t => t.Players)
+				.Include(m => m.Team2)
+					.ThenInclude(t => t.Players)
+				.Include(m => m.Tournament)
+				.FirstOrDefaultAsync(m => m.Id == id);
 
 
 		public async Task<IEnumerable<Match>> GetTeamsMatchesAsync(int teamId)

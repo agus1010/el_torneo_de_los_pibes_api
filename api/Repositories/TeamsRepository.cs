@@ -36,6 +36,7 @@ namespace api.Repositories
 		public async Task<Team?> GetAsync(int id, bool includePlayers = true)
 			=> await (includePlayers ? allTeamsNav : allTeams).FirstOrDefaultAsync(t => t.Id == id);
 
+		
 
 
 		// Commands
