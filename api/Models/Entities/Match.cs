@@ -3,7 +3,7 @@
 
 namespace api.Models.Entities
 {
-	public class Match
+	public class Match : IIdentificable
 	{
 		[Key] public int Id { get; set; }
 

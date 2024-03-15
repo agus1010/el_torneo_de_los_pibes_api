@@ -1,17 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
-using api.Data;
 using api.Models.Entities;
 using api.Repositories.Interfaces;
 using NuGet.Packaging;
+using api.Data;
+using api.Data.Queries;
+using api.Data.Comamnds;
 
 namespace api.Repositories
 {
-	// https://learn.microsoft.com/en-us/ef/core/change-tracking/relationship-changes
-	// https://learn.microsoft.com/en-us/ef/core/change-tracking/
-	// https://learn.microsoft.com/en-us/ef/core/change-tracking/identity-resolution
-	// https://stackoverflow.com/questions/48962213/updating-many-to-many-in-entity-framework-core
-	public class TeamsRepository : ITeamsRepository
+    // https://learn.microsoft.com/en-us/ef/core/change-tracking/relationship-changes
+    // https://learn.microsoft.com/en-us/ef/core/change-tracking/
+    // https://learn.microsoft.com/en-us/ef/core/change-tracking/identity-resolution
+    // https://stackoverflow.com/questions/48962213/updating-many-to-many-in-entity-framework-core
+    public class TeamsRepository : ITeamsRepository
 	{
 		protected IDbContextFactory<ApplicationDbContext> contextFactory;
 		protected readonly ApplicationDbContext qContext;
@@ -21,10 +22,9 @@ namespace api.Repositories
 
 
 		
-		public TeamsRepository(IDbContextFactory<ApplicationDbContext> contextFactory)
+		public TeamsRepository(TeamQueriesRunner teamQueries, TeamCommandsRunner teamCommands)
 		{
-			this.contextFactory = contextFactory;
-			qContext = contextFactory.CreateDbContext();
+
 		}
 
 
@@ -122,108 +122,3 @@ namespace api.Repositories
 			=> from.ExceptBy(with.Select(p => p.Id), p => p.Id);
 	}
 }
-		/*public async Task<Team> CreateAsync(Team team, bool track = false)
-		{
-			using (var context = await contextFactory.CreateDbContextAsync())
-			{
-				foreach (var player in team.Players)
-					context.Entry(player).State = EntityState.Detached;
-				// await context.Players.AddRangeAsync(team.Players);
-				// context.Players.AttachRange(team.Players);
-				var newTeamEntry = await context.Teams.AddAsync(team);
-				if (!track)
-					newTeamEntry.State = EntityState.Detached;
-			}
-			return team;
-		}
-
-
-		public async Task<Team?> GetAsync(int id, bool includePlayers, bool track = false)
-			=> await allTeamsNav.FirstOrDefaultAsync(t => t.Id == id);
-
-
-		
-		public async Task UpdateAsync(Team updatedTeam)
-		{
-			var trackedTeam = (await GetAsync(updatedTeam.Id, true, true))!;
-			var originalPlayers = trackedTeam.Players.Select(p => p!);
-
-			context.Entry(trackedTeam!).CurrentValues.SetValues(updatedTeam);
-
-			var ignoredPlayers = playersSetIntersection(originalPlayers, updatedTeam.Players);
-			foreach (var player in ignoredPlayers)
-				context.Entry(player).State = EntityState.Detached;
-
-			removePlayers(trackedTeam, playersSetDifference(originalPlayers, ignoredPlayers));
-			addPlayers(trackedTeam, playersSetDifference(updatedTeam.Players, ignoredPlayers));
-
-			await Persist();
-		}
-
-
-		public async Task DeleteAsync(Team team)
-		{
-			context.Teams.Remove(team);
-			await Persist();
-		}
-
-
-		public async Task EditPlayers(Team team, ISet<Player> addedPlayers, ISet<Player> removedPlayers)
-		{
-			var trackedTeam = (await GetAsync(team.Id, true, true))!;
-			addPlayers(trackedTeam, addedPlayers);
-			removePlayers(trackedTeam, removedPlayers);
-			await Persist();
-		}
-
-
-		public async Task AddPlayers(Team team, ISet<Player> addedPlayers)
-		{
-			var trackedTeam = (await GetAsync(team.Id, true, true))!;
-			addPlayers(team, addedPlayers);
-			await Persist();
-		}
-
-
-		public async Task RemovePlayers(Team team, ISet<Player> removedPlayers)
-		{
-			var trackedTeam = (await GetAsync(team.Id, true, true))!;
-			removePlayers(team, removedPlayers);
-			await Persist();
-		}
-
-
-
-		protected IQueryable<Team> AllTeams(bool includePlayers = false, bool track = false)
-		{
-			IQueryable<Team> query = context.Teams.AsQueryable();
-			if (includePlayers)
-				query = query.Include(t => t.Players);
-			if (!track)
-				query = query.AsNoTracking();
-			return query;
-		}
-
-
-		protected void addPlayers(Team team, IEnumerable<Player> playersToAdd)
-		{
-			foreach (var player in playersToAdd)
-				team.Players.Add(player);
-		}
-
-
-		protected void removePlayers(Team team, IEnumerable<Player> playersToRemove)
-		{
-			foreach (var player in playersSetIntersection(team.Players, playersToRemove))
-				team.Players.Remove(player);
-		}
-
-
-		public IEnumerable<Player> playersSetIntersection(IEnumerable<Player> set1, IEnumerable<Player> set2)
-			=> set1.IntersectBy(set2.Select(p => p.Id), t => t.Id);
-
-		public IEnumerable<Player> playersSetDifference(IEnumerable<Player> set1, IEnumerable<Player> set2)
-			=> set1.ExceptBy(set2.Select(p => p.Id), p => p.Id);
-	}
-}
-*/

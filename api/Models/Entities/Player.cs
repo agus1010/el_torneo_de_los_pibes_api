@@ -3,7 +3,7 @@
 
 namespace api.Models.Entities
 {
-	public class Player
+	public class Player : IIdentificable
 	{
 		[Key]
 		public int Id { get; set; }

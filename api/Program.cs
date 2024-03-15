@@ -1,4 +1,5 @@
 using api.Data;
+using api.Models.Entities;
 using api.Profiles;
 using api.Repositories;
 using api.Repositories.Interfaces;
@@ -20,6 +21,9 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>();
 
 builder.Services.AddAutoMapper(typeof(ApplicationMappingProfile));
 
+
+builder.Services.AddScoped<DBQueryRunner<Player>, DBQueryRunner<Player>>();
+builder.Services.AddScoped<DBCommandRunner<Player>, DBCommandRunner<Player>>();
 
 
 builder.Services.AddScoped<IPlayersRepository, PlayersRepository>();

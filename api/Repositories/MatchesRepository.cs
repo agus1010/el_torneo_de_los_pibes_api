@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
-using api.Data;
 using api.Models.Entities;
+using api.Data;
 
 
 // https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design
@@ -12,7 +11,7 @@ using api.Models.Entities;
 // https://medium.com/@philsarin/whats-the-point-of-the-aggregate-pattern-741a3132da5c
 namespace api.Repositories
 {
-	public class MatchesRepository
+    public class MatchesRepository
 	{
 		protected IDbContextFactory<ApplicationDbContext> contextFactory;
 		protected ApplicationDbContext qContext;

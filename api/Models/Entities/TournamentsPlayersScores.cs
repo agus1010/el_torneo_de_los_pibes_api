@@ -3,7 +3,7 @@
 
 namespace api.Models.Entities
 {
-	public class TournamentsPlayersScores
+	public class TournamentsPlayersScores : IIdentificable
 	{
 		[Key] public int Id { get; set; }
 		public Player Player { get; set; }
