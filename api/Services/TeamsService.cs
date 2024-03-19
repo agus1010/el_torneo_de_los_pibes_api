@@ -45,10 +45,17 @@ namespace api.Services
 		}
 
 
-		public async Task EditTeam(TeamUpdateDto teamUpdateDto)
+		public async Task EditTeam(TeamUpdateDto teamUpdateDto, bool patchPlayers)
 		{
+			var originalTeam = await teamsRepo.GetAsync(teamUpdateDto.Id, includePlayers: true);
+			if (originalTeam == null)
+				throw new EntityNotFoundException();
+
 			var team = mapper.Map<Team>(teamUpdateDto);
-			team.Players = mapper.Map<ISet<Player>>(await playersService.GetAsync(teamUpdateDto.PlayerIds));
+			team.Players = patchPlayers ?
+				mapper.Map<ISet<Player>>(await playersService.GetAsync(teamUpdateDto.PlayerIds)) :
+				originalTeam.Players;
+
 			await teamsRepo.UpdateAsync(team);
 		}
 

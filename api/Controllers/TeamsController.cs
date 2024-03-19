@@ -52,13 +52,13 @@ namespace api.Controllers
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public async virtual Task<ActionResult> EditTeam(int id, [FromBody] TeamUpdateDto teamUpdateDto)
+		public async virtual Task<ActionResult> EditTeam(int id, [FromBody] TeamUpdateDto teamUpdateDto, bool patchPlayers = false)
         {
-            if (id <= 0 || teamUpdateDto == null || teamUpdateDto.Id != id || teamUpdateDto.PlayerIds == null)
+            if (id <= 0 || teamUpdateDto == null || teamUpdateDto.Id != id || (patchPlayers && teamUpdateDto.PlayerIds == null))
                 return BadRequest();
             try
             {
-                await teamsService.EditTeam(teamUpdateDto);
+                await teamsService.EditTeam(teamUpdateDto, patchPlayers);
             }
             catch (EntityNotFoundException)
             {

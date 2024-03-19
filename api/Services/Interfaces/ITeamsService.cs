@@ -8,7 +8,7 @@ namespace api.Services.Interfaces
         Task<TeamDto> CreateTeam(TeamCreationDto teamCreationDto);
         Task DeleteTeam(int id);
         Task EditPlayers(int teamId, TeamPlayersEditDto teamPlayersEditDto);
-        Task EditTeam(TeamUpdateDto teamUpdateDto);
+        Task EditTeam(TeamUpdateDto teamUpdateDto, bool patchPlayers);
         Task<ISet<PlayerDto>> GetPlayers(int teamId);
         Task<TeamDto?> GetTeam(int id, bool includedPlayers);
     }
