@@ -1,4 +1,6 @@
 using api.Data;
+using api.Data.Comamnds;
+using api.Data.Queries;
 using api.Models.Entities;
 using api.Profiles;
 using api.Repositories;
@@ -24,6 +26,10 @@ builder.Services.AddAutoMapper(typeof(ApplicationMappingProfile));
 
 builder.Services.AddScoped<DBQueryRunner<Player>, DBQueryRunner<Player>>();
 builder.Services.AddScoped<DBCommandRunner<Player>, DBCommandRunner<Player>>();
+
+builder.Services.AddScoped<TeamQueriesRunner, TeamQueriesRunner>();
+builder.Services.AddScoped<TeamCommandsRunner, TeamCommandsRunner>();
+
 
 
 builder.Services.AddScoped<IPlayersRepository, PlayersRepository>();

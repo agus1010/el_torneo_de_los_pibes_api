@@ -65,7 +65,7 @@ namespace api.Services
 
 		public async Task<ISet<PlayerDto>> GetPlayers(int teamId)
 		{
-			var team = await teamsRepo.GetAsync(teamId);
+			var team = await teamsRepo.GetAsync(teamId, true);
 			if (team == null)
 				throw new EntityNotFoundException();
 			return mapper.Map<ISet<PlayerDto>>(team.Players);
@@ -79,27 +79,16 @@ namespace api.Services
 			if (team == null)
 				throw new EntityNotFoundException();
 
-			int playersAddedCount = teamPlayersEditDto.PlayersAdded.Count;
-			int playersRemovedCount = teamPlayersEditDto.PlayersRemoved.Count;
-
-			// chequear si hay ids repetidos entre removed y added
-			IEnumerable<int> allIds = teamPlayersEditDto.PlayersRemoved.Union(teamPlayersEditDto.PlayersAdded);
-			int necesaryIdsCount = playersAddedCount + playersRemovedCount;
-			if (allIds.Count() < necesaryIdsCount)
+			if (teamPlayersEditDto.PlayersAdded.Intersect(teamPlayersEditDto.PlayersRemoved).Count() > 0)
 				throw new InvalidOperationException();
 
-			// chequear si hay ids que no corresponden a players
-			var allPlayerDtos = await playersService.GetAsync(allIds);
-			if (allPlayerDtos.Count() < necesaryIdsCount)
+			var playersAdded = mapper.Map<ISet<Player>>(await playersService.GetAsync(teamPlayersEditDto.PlayersAdded));
+			var playersRemoved = mapper.Map<ISet<Player>>(await playersService.GetAsync(teamPlayersEditDto.PlayersRemoved));
+
+			if ((teamPlayersEditDto.PlayersAdded.Count + teamPlayersEditDto.PlayersRemoved.Count) > (playersAdded.Count + playersRemoved.Count))
 				throw new InvalidOperationException();
 
-			var allPlayers = mapper.Map<IEnumerable<Player>>(allPlayerDtos);
-
-
-			var addedPlayers = allPlayers.Where(p => teamPlayersEditDto.PlayersAdded.Contains(p.Id)).ToHashSet();
-			var removedPlayers = allPlayers.Where(p => teamPlayersEditDto.PlayersRemoved.Contains(p.Id)).ToHashSet();
-
-			await teamsRepo.EditPlayers(team, addedPlayers, removedPlayers);
+			await teamsRepo.EditPlayers(team, playersAdded, playersRemoved);
 		}
 	}
 }

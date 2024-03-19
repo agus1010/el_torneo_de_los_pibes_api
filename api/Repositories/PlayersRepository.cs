@@ -19,7 +19,7 @@ namespace api.Repositories
 
 
 		public async Task<IEnumerable<Player>> GetAsync(IEnumerable<int> ids)
-			=> await qPlayers.GetAsync(ids);
+			=> await qPlayers.GetRangeAsync(ids);
 
 		public async Task<Player?> GetAsync(int id)
 			=> await qPlayers.GetAsync(id);

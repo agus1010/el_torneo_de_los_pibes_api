@@ -89,18 +89,18 @@ namespace api.Controllers
 
 
 
-        [HttpGet("{id}/players")]
+        [HttpGet("{teamId}/Players")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public async virtual Task<ActionResult<ISet<PlayerDto>>> GetTeamPlayers(int id)
+		public async virtual Task<ActionResult<ISet<PlayerDto>>> GetTeamPlayers(int teamId)
         {
-            if (id <= 0)
+            if (teamId <= 0)
                 return BadRequest();
             ISet<PlayerDto> players;
             try
             {
-                players = await teamsService.GetPlayers(id);
+                players = await teamsService.GetPlayers(teamId);
             }
             catch (EntityNotFoundException)
             {
@@ -111,7 +111,7 @@ namespace api.Controllers
         
 
 
-        [HttpPut("{teamId}/players")]
+        [HttpPut("{teamId}/Players")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]

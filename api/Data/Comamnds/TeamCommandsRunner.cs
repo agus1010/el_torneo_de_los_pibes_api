@@ -9,11 +9,9 @@ namespace api.Data.Comamnds
 	public class TeamCommandsRunner : DBCommandRunner<Team>
 	{
 		protected TeamQueriesRunner teamsQueries;
-		protected DBQueryRunner<Player> playersQueries;
 
-		public TeamCommandsRunner(IDbContextFactory<ApplicationDbContext> contextFactory, TeamQueriesRunner teamsQueries, DBQueryRunner<Player> playersQueries) : base(contextFactory)
+		public TeamCommandsRunner(IDbContextFactory<ApplicationDbContext> contextFactory, TeamQueriesRunner teamsQueries) : base(contextFactory)
 		{
-			this.playersQueries = playersQueries;
 			this.teamsQueries = teamsQueries;
 		}
 
@@ -39,32 +37,13 @@ namespace api.Data.Comamnds
 
 		public override async Task UpdateAsync(ApplicationDbContext context, Team team)
 		{
-			var originalTeam = (await teamsQueries.GetAsyncWithNavs(team.Id))!;
-			await UpdateAsync
-				(
-					context,
-					team,
-					removedPlayers: playersDifference(originalTeam, team),
-					addedPlayers: playersDifference(team, originalTeam)
-				);
-		}
-
-
-		public async Task UpdateAsync(
-			ApplicationDbContext context, 
-			Team team,
-			IEnumerable<Player>? addedPlayers = null,
-			IEnumerable<Player>? removedPlayers = null
-		)
-		{
-			var trackedTeam = (await context.Teams.FindAsync(team.Id))!;
-			context.Entry(trackedTeam).CurrentValues.SetValues(team);
-			
-			if (removedPlayers != null)
-				removePlayersFromTeam(trackedTeam, removedPlayers);
-
-			if (addedPlayers != null)
-				addPlayersToTeam(trackedTeam, addedPlayers);
+			var originalTeam = await findInContext(context, team.Id);
+			context.Entry(originalTeam).CurrentValues.SetValues(team);
+			setPlayers(
+				team: originalTeam,
+				addedPlayers: playersDifference(team, originalTeam),
+				removedPlayers: playersDifference(originalTeam, team)
+			);
 		}
 
 
@@ -75,17 +54,67 @@ namespace api.Data.Comamnds
 		}
 
 
+
+		public async Task SetPlayers(Team team, IEnumerable<Player> finalPlayers)
+			=>  await EditPlayers(
+					team: team,
+					playersToAdd: playersDifference(finalPlayers, team.Players),
+					playersToRemove: playersDifference(team.Players, finalPlayers)
+				);
+
+		public async Task EditPlayers(Team team, IEnumerable<Player> playersToAdd, IEnumerable<Player> playersToRemove)
+		{
+			using (var context = await contextFactory.CreateDbContextAsync())
+				await EditPlayers(context, team, playersToAdd, playersToRemove);
+		}
+
+
+		public async Task EditPlayers(ApplicationDbContext context, Team team, IEnumerable<Player> finalPlayers)
+			=> await EditPlayers(
+					context: context, 
+					team: team, 
+					playersToAdd: playersDifference(finalPlayers, team.Players), 
+					playersToRemove: playersDifference(team.Players, finalPlayers)
+				);
+
+		public async Task EditPlayers(ApplicationDbContext context, Team team, IEnumerable<Player> playersToAdd, IEnumerable<Player> playersToRemove)
+		{
+			var trackedTeam = await findInContext(context, team.Id);
+			setPlayers(trackedTeam, playersToAdd, playersToRemove);
+			team.Players = trackedTeam.Players;
+		}
+
+
+
+		
+		protected void setPlayers(Team team, IEnumerable<Player>? addedPlayers = null, IEnumerable<Player>? removedPlayers = null)
+		{
+			if (removedPlayers != null)
+				removePlayersFromTeam(team, removedPlayers);
+
+			if (addedPlayers != null)
+				addPlayersToTeam(team, addedPlayers);
+		}
+
 		protected void addPlayersToTeam(Team trackedTeam, IEnumerable<Player> playersToAdd)
-			=> trackedTeam.Players.AddRange(playersToAdd);
+		{
+			foreach (var player in playersToAdd)
+				trackedTeam.Players.Add(player);
+		}
 
 		protected void removePlayersFromTeam(Team trackedTeam, IEnumerable<Player> playersToRemove)
 		{
-			foreach (var player in playersToRemove)
+			var removedIds = playersToRemove.Select(player => player.Id);
+			var removedInstances = trackedTeam.Players.Where(p => removedIds.Contains(p.Id));
+			foreach (var player in removedInstances)
 				trackedTeam.Players.Remove(player);
 		}
 
 
-		
+
+		private async Task<Team> findInContext(ApplicationDbContext context, int id)
+			=> (await teamsQueries.GetAsync(context, id, track: true, fetchPlayers: true, trackPlayers: true))!;
+
 		private IEnumerable<Player> playersDifference(Team from, Team with)
 			=> playersDifference(from.Players, with.Players);
 
